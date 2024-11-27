@@ -97,7 +97,10 @@ function copy(id, element) {
     }, 1500);
 }
 
-// Save current pixel grid as a frame
+/// Array to store saved frames for animation
+let savedFramesArray = [];
+
+// Save the frame into the animation array
 function saveFrame() {
     const pixelGrid = document.getElementById('pixel-grid');
     const savedFramesContainer = document.getElementById('savedFrames');
@@ -123,6 +126,9 @@ function saveFrame() {
         ctx.fillRect(x, y, pixelSize, pixelSize); // Draw the pixel
     }
 
+    // Add the saved frame canvas to the array
+    savedFramesArray.push(savedCanvas);
+
     // Create a mini thumbnail and add it to the saved frames
     const frameThumbnail = document.createElement('div');
     frameThumbnail.classList.add('saved-frame');
@@ -138,6 +144,48 @@ function saveFrame() {
         loadFrame(savedCanvas);
     });
 }
+
+// Function to play the animation at 6 FPS
+let animationInterval;
+function playAnimation() {
+    let currentFrameIndex = 0;
+    const previewContainer = document.getElementById('animation-preview');
+
+    // Function to show the next frame in the animation
+    function showNextFrame() {
+        if (currentFrameIndex >= savedFramesArray.length) {
+            currentFrameIndex = 0; // Loop back to the first frame
+        }
+        previewContainer.innerHTML = ''; // Clear previous frame
+        const frame = savedFramesArray[currentFrameIndex];
+        const img = document.createElement('img');
+        img.src = frame.toDataURL(); // Convert canvas to image
+        previewContainer.appendChild(img);
+
+        currentFrameIndex++; // Move to the next frame
+    }
+
+    // Start showing frames at 6 FPS
+    animationInterval = setInterval(showNextFrame, 1000 / 6); // 6 FPS = 1000 ms / 6
+
+    // Disable the play button while animation is running
+    document.getElementById('play-animation').disabled = true;
+}
+
+// Stop the animation
+function stopAnimation() {
+    clearInterval(animationInterval);
+    document.getElementById('play-animation').disabled = false;
+}
+
+// Event listener for play button
+document.getElementById('play-animation').addEventListener('click', function () {
+    if (animationInterval) {
+        stopAnimation(); // Stop animation if it's already running
+    } else {
+        playAnimation(); // Start the animation
+    }
+});
 
 // Load the saved frame back into the pixel grid
 function loadFrame(savedCanvas) {

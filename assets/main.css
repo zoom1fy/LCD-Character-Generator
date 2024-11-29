@@ -9,7 +9,7 @@ pre {
     text-align: left;
 }
 
-.jumbotron{
+.jumbotron {
     height: 200px;
 }
 
@@ -33,15 +33,19 @@ pre {
 
 }
 
-.onGray{
+.onGray {
     background: rgb(238, 65, 65);
 }
 
 .butContainer {
-    justify-content: center; /* Horizontally center the buttons */
-    display: flex;           /* Use flexbox to arrange buttons in a row */
-    align-items: center;     /* Vertically center the buttons */
-    gap: 20px;               /* Optional: space between buttons */
+    justify-content: center;
+    /* Horizontally center the buttons */
+    display: flex;
+    /* Use flexbox to arrange buttons in a row */
+    align-items: center;
+    /* Vertically center the buttons */
+    gap: 20px;
+    /* Optional: space between buttons */
     margin-bottom: 20px;
 }
 
@@ -92,4 +96,77 @@ pre {
 .btn-custom:focus {
     outline: none;
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.animation-controls {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.saved-frames {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.saved-frames h3 {
+    font-size: 18px;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.frames-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.saved-frame {
+    width: 50px;
+    height: 80px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    /* Центровка по вертикали */
+    justify-content: center;
+    /* Центровка по горизонтали */
+    text-align: center;
+    /* Текст внутри блока по центру */
+    font-size: 12px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.controls {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fps-control {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+input[type="range"] {
+    width: 200px;
+}
+
+#fpsValue {
+    font-weight: bold;
+    color: #495057;
 }

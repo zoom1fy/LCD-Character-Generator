@@ -9,3 +9,7 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 - **Frame Management**: Save, load, duplicate, and delete frames for animations.
 - **Animation Control**: Play and stop animations with adjustable FPS.
 - **Memory Usage Tracking**: Monitor the memory usage of saved frames.
+
+## Acknowledgments
+The project was taken as a basis 
+omerk: https://github.com/omerk/lcdchargen

@@ -156,10 +156,10 @@ function renderSavedFrames() {
     canvas.draggable = true; // Позволяем перетаскивание
     canvas.dataset.index = index; // Сохраняем индекс кадра
 
-    // Обработчик ПКМ для удаления кадра
+    // Обработчик ПКМ для отображения контекстного меню
     canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault(); // Предотвращаем стандартное меню браузера
-      deleteFrame(index); // Удаляем кадр
+      showContextMenu(event, index); // Отображаем контекстное меню
     });
 
     canvas.addEventListener("dragstart", (event) => {
@@ -202,6 +202,54 @@ function deleteFrame(index) {
   savedFrames.splice(index, 1); // Удаляем кадр из массива
   renderSavedFrames(); // Перерисовываем список кадров
   calculateMemoryUsage(); // Пересчитываем память после удаления кадра
+}
+
+// Функция для дублирования кадра
+function duplicateFrame(index) {
+  const frame = savedFrames[index];
+  savedFrames.splice(index, 0, JSON.parse(JSON.stringify(frame))); // Дублируем кадр
+  renderSavedFrames(); // Перерисовываем список кадров
+  calculateMemoryUsage(); // Пересчитываем память после дублирования кадра
+}
+
+// Функция для отображения контекстного меню
+function showContextMenu(event, index) {
+  const contextMenu = document.createElement("div");
+  contextMenu.className = "context-menu";
+  contextMenu.style.position = "absolute";
+  contextMenu.style.left = `${event.pageX}px`;
+  contextMenu.style.top = `${event.pageY}px`;
+  contextMenu.style.backgroundColor = "#fff";
+  contextMenu.style.border = "1px solid #ccc";
+  contextMenu.style.padding = "10px";
+  contextMenu.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.1)";
+  contextMenu.style.zIndex = 1000;
+
+  const duplicateItem = document.createElement("div");
+  duplicateItem.innerText = "Duplicate";
+  duplicateItem.style.cursor = "pointer";
+  duplicateItem.addEventListener("click", () => {
+    duplicateFrame(index);
+    document.body.removeChild(contextMenu);
+  });
+
+  const deleteItem = document.createElement("div");
+  deleteItem.innerText = "Delete";
+  deleteItem.style.cursor = "pointer";
+  deleteItem.addEventListener("click", () => {
+    deleteFrame(index);
+    document.body.removeChild(contextMenu);
+  });
+
+  contextMenu.appendChild(duplicateItem);
+  contextMenu.appendChild(deleteItem);
+
+  document.body.appendChild(contextMenu);
+
+  // Удаляем контекстное меню при клике вне его
+  document.addEventListener("click", () => {
+    document.body.removeChild(contextMenu);
+  }, { once: true });
 }
 
 /*============ ВОСПРОИЗВЕДЕНИЕ АНИМАЦИИ ============*/

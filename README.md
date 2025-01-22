@@ -11,5 +11,5 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 - **Memory Usage Tracking**: Monitor the memory usage of saved frames.
 
 ## Acknowledgments
-The project was taken as a basis 
-omerk: https://github.com/omerk/lcdchargen
+The project is based on the LCD character generator by Omer Kilic (`omerk`):
+https://github.com/omerk/lcdchargen

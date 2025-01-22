@@ -127,6 +127,8 @@ function reflectVertical() {
 let savedFrames = [];
 let currentFrameIndex = -1;
 
+const framesContainer = document.querySelector(".frames-container");
+
 // Функция для сохранения кадра
 function saveFrame() {
   // Проверяем, достаточно ли памяти для нового кадра
@@ -151,10 +153,36 @@ function renderSavedFrames() {
     canvas.className = "saved-frame";
     canvas.addEventListener("click", () => loadFrame(frame));
 
+    canvas.draggable = true; // Позволяем перетаскивание
+    canvas.dataset.index = index; // Сохраняем индекс кадра
+
     // Обработчик ПКМ для удаления кадра
     canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault(); // Предотвращаем стандартное меню браузера
       deleteFrame(index); // Удаляем кадр
+    });
+
+    canvas.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/plain", index);
+    });
+
+    canvas.addEventListener("dragover", (event) => {
+      event.preventDefault(); // Позволяем сброс
+    });
+
+    canvas.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const draggedIndex = event.dataTransfer.getData("text/plain");
+      const targetIndex = canvas.dataset.index;
+
+      // Меняем кадры местами
+      [savedFrames[draggedIndex], savedFrames[targetIndex]] = [
+        savedFrames[targetIndex],
+        savedFrames[draggedIndex],
+      ];
+
+      renderSavedFrames(); // Перерисовываем кадры
+      calculateMemoryUsage(); // Обновляем информацию о памяти
     });
 
     const ctx = canvas.getContext("2d");

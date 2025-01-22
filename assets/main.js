@@ -83,20 +83,20 @@ function generateOutput() {
   $(".output").text(output);
 
   $("#codeArduino").text(`#include <LiquidCrystal.h>
-    
+
     // Initialize the library
     LiquidCrystal lcd(${$("#RSPin").val()}, ${$("#EnablePin").val()}, ${$(
     "#D4Pin"
   ).val()}, ${$("#D5Pin").val()}, ${$("#D6Pin").val()}, ${$("#D7Pin").val()});
-    
+
     ${output}
-    
+
     void setup() {
         lcd.createChar(0, customChar);
         lcd.begin(16, 2);
         lcd.write((uint8_t)0);
     }
-    
+
     void loop() {}`);
 
   calculateMemoryUsage(); // Пересчитываем память после генерации вывода
@@ -305,4 +305,19 @@ $(document).ready(function () {
   });
 
   $("#save-frame").click(saveFrame);
+
+  // Обработчики для переключения вкладок
+  $("#customCharacterLink").click(function () {
+    $("#tab-pixel").show();
+    $("#tab-code").hide();
+    document.getElementById('customCharacterLink').setAttribute('class', 'active')
+    document.getElementById('arduinoCodeLink').removeAttribute('class', 'active')
+  });
+
+  $("#arduinoCodeLink").click(function () {
+    $("#tab-code").show();
+    $("#tab-pixel").hide();
+    document.getElementById('customCharacterLink').removeAttribute('class', 'active')
+    document.getElementById('arduinoCodeLink').setAttribute('class', 'active')
+  });
 });

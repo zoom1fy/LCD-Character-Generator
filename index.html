@@ -41,7 +41,10 @@
       <a class="navbar-brand" href="#">LCD Character Generator</a>
       <ul class="navbar-nav ml-auto">
         <li class="nav-item" id="">
-          <a class="nav-link" target="_blank" href="https://github.com/ZoomCH02/LCD-Character-Generator"
+          <a
+            class="nav-link"
+            target="_blank"
+            href="https://github.com/ZoomCH02/LCD-Character-Generator"
             >project source on github
           </a>
         </li>
@@ -91,12 +94,15 @@
                   "
                 >
                   <div class="col-md-3">
-                    <img
-                      style="border-radius: 15px"
-                      width="300px"
-                      src="https://kit.alexgyver.ru/wp-content/uploads/1602charset.jpg"
-                      alt="Custom Character"
-                    />
+                    <div class="row" style="display: flex; gap: 30px; justify-content: space-between;">
+                      <div class="col-md-3">
+                          <div class="symbol-table" id="symbolTable">
+                              <!-- Символы будут добавлены через JavaScript -->
+                          </div>
+                      </div>
+          
+                      <!-- Ваш существующий код для панели и других элементов -->
+                  </div>
                   </div>
 
                   <div class="col-md-3">
@@ -248,124 +254,6 @@
             <!-- Arduino Code Tab -->
             <div class="tab-pane" id="tab-code" role="tabpanel">
               <span>SOON</span>
-              <!-- <div class="container-fluid">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div id="pins">
-                      <table
-                        style="width: 100%; max-width: 250px; margin: 0 auto"
-                      >
-                        <thead>
-                          <tr>
-                            <th>LCD Module</th>
-                            <th>Arduino Pin</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>RS</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="12"
-                                class="pinChange"
-                                id="RSPin"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>RW</td>
-                            <td>GND</td>
-                          </tr>
-                          <tr>
-                            <td>Enable</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="11"
-                                class="pinChange"
-                                id="EnablePin"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>D4</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="5"
-                                class="pinChange"
-                                id="D4Pin"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>D5</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="4"
-                                class="pinChange"
-                                id="D5Pin"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>D6</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="3"
-                                class="pinChange"
-                                id="D6Pin"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>D7</td>
-                            <td>
-                              <input
-                                type="number"
-                                value="2"
-                                class="pinChange"
-                                id="D7Pin"
-                              />
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <div id="arduino">
-                      <h2>
-                        Example Arduino Sketch
-                        <span
-                          class="badge badge-primary"
-                          style="font-size: 12px; cursor: pointer"
-                          onclick="copy('codeArduino', this)"
-                          >COPY</span
-                        >
-                      </h2>
-                      <span
-                        ><a
-                          href="http://www.arduino.cc/en/Reference/LiquidCrystal"
-                          target="_blank"
-                          >(LiquidCrystal library reference)</a
-                        ></span
-                      >
-                      <textarea
-                        class="form-control"
-                        id="codeArduino"
-                        style="white-space: pre; overflow-x: auto; resize: none"
-                        rows="26"
-                        readonly
-                      ></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </div>
@@ -375,5 +263,7 @@
     <script src="./assets/jquery-3.0.0.slim.min.js"></script>
     <script src="./assets/bootstrap.min.js"></script>
     <script src="./assets/main.js"></script>
+    <script src="./assets/symbol_list.js"></script>
+    <script src="./assets/symbolTable.js"></script>
   </body>
 </html>

@@ -170,3 +170,25 @@ input[type="range"] {
     font-weight: bold;
     color: #495057;
 }
+
+.symbol-table {
+    display: grid;
+    grid-template-columns: repeat(10, 20px);
+    gap: 10px;
+    margin-left: -200%;
+}
+
+.symbol-cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.symbol-cell.on {
+    background-color: #000;
+}
+
+.symbol-cell.off {
+    background-color: #fff;
+}

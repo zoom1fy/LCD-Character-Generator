@@ -16,4 +16,3 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 ## Acknowledgments
 The project is based on the LCD character generator by Omer Kilic (`omerk`):
 https://github.com/omerk/lcdchargen
->>>>>>> e32ea8114ef92ecac3766f66daa7f3457592bfba

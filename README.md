@@ -8,4 +8,12 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 - **Arduino Code Generation**: Automatically generate Arduino code for the custom characters.
 - **Frame Management**: Save, load, duplicate, and delete frames for animations.
 - **Animation Control**: Play and stop animations with adjustable FPS.
+<<<<<<< HEAD
 - **Memory Usage Tracking**: Monitor the memory usage of saved frames.
+=======
+- **Memory Usage Tracking**: Monitor the memory usage of saved frames.
+
+## Acknowledgments
+The project is based on the LCD character generator by Omer Kilic (`omerk`):
+https://github.com/omerk/lcdchargen
+>>>>>>> e32ea8114ef92ecac3766f66daa7f3457592bfba

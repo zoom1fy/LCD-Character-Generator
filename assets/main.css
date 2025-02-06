@@ -218,7 +218,7 @@ input[type="range"] {
     margin-top: 20px;
     padding: 10px;
     border: 1px solid #ccc;
-    background-color: #f9f9f9;
+    background-color: #324d22;
     border-radius: 8px;
 }
 
@@ -234,10 +234,11 @@ input[type="range"] {
     cursor: pointer;
     margin: 2px;
     position: relative;
+    background-color: #5f9341;
 }
 
 .lcd-cell.active {
-    border: 2px solid #007bff;
+    border: 2px solid #00ff04;
 }
 
 .bookmark-button {
@@ -292,4 +293,35 @@ input[type="range"] {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+/* Стиль для элемента select */
+select {
+    width: 200px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+    appearance: none;
+    /* Убираем стандартное оформление */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="%23333" d="M0 0l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px;
+}
+
+/* Стиль для элемента select при фокусе */
+select:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+/* Стиль для элемента option */
+option {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
 }

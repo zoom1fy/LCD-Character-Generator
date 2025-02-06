@@ -99,24 +99,34 @@ pre {
 }
 
 .animation-controls {
-    max-width: 600px;
+    max-width: 1200px;
     margin: 0 auto;
     text-align: center;
 }
 
+.animation-controls-container {
+    display: flex;
+    margin-bottom: 30px;
+}
+
+
 .saved-frames {
-    margin-bottom: 20px;
     padding: 10px;
     border: 1px solid #ced4da;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
 }
 
 .saved-frames h3 {
     font-size: 18px;
     color: #495057;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .frames-container {
@@ -143,19 +153,23 @@ pre {
     font-size: 12px;
     font-weight: bold;
     color: #495057;
+    margin-right: 10px;
 }
 
 .controls {
     margin-top: 20px;
+    margin-left: 30px;
     padding: 10px;
     border: 1px solid #ced4da;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 600px;
+    height: 100px;
 }
 
 .fps-control {
-    margin-top: 10px;
+    margin-top: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,6 +207,13 @@ input[type="range"] {
     background-color: #fff;
 }
 
+.lcd-display-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+}
+
 .lcd-display {
     margin-top: 20px;
     padding: 10px;
@@ -201,19 +222,18 @@ input[type="range"] {
     border-radius: 8px;
 }
 
-.lcd-grid {
-    display: grid;
-    grid-template-columns: repeat(16, 20px);
-    grid-template-rows: repeat(2, 20px);
-    gap: 2px;
+.lcd-row {
+    display: flex;
 }
 
 .lcd-cell {
     width: 20px;
-    height: 20px;
+    height: 40px;
     border: 1px solid #ccc;
     background-color: #fff;
     cursor: pointer;
+    margin: 2px;
+    position: relative;
 }
 
 .lcd-cell.active {

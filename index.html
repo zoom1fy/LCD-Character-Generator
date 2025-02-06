@@ -9,30 +9,6 @@
     />
     <link rel="stylesheet" href="./assets/bootstrap.min.css" />
     <link rel="stylesheet" href="./assets/main.css" />
-    <style>
-      .saved-frames {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 20px;
-      }
-
-      .saved-frame {
-        width: 50px;
-        height: 50px;
-        margin: 5px;
-        border: 1px solid #ccc;
-        cursor: pointer;
-      }
-
-      .saved-frame img {
-        width: 100%;
-        height: 100%;
-      }
-
-      #save-frame {
-        margin-top: 10px;
-      }
-    </style>
   </head>
 
   <body>
@@ -233,28 +209,29 @@
               <div class="animation-controls">
                 <!-- Saved Frames Section -->
                 <div id="memory-status">Оставшаяся память: 1016 байт</div>
-
-                <div class="saved-frames" id="savedFrames">
-                  <h3>Saved Frames</h3>
-                  <div class="frames-container">
-                    <!-- Frames will be dynamically added here -->
+                <div class="animation-controls-container">
+                  <div class="saved-frames" id="savedFrames">
+                    <h3>Saved Frames</h3>
+                    <div class="frames-container">
+                      <!-- Frames will be dynamically added here -->
+                    </div>
+                  </div>
+                  <!-- Animation Controls -->
+                  <div class="controls">
+                    <div class="fps-control">
+                      <label for="fps">Animation FPS:</label>
+                      <input type="range" id="fps" min="1" max="24" value="2" />
+                      <span id="fpsValue">2</span> FPS
+                    </div>
                   </div>
                 </div>
+
                 <button id="save-frame" class="btn btn-success">
                   Save Frame
                 </button>
-
-                <!-- Animation Controls -->
-                <div class="controls">
-                  <button id="play-animation" class="btn btn-primary">
-                    Play Animation
-                  </button>
-                  <div class="fps-control">
-                    <label for="fps">Animation FPS:</label>
-                    <input type="range" id="fps" min="1" max="24" value="2" />
-                    <span id="fpsValue">2</span> FPS
-                  </div>
-                </div>
+                <button id="play-animation" class="btn btn-primary">
+                  Play Animation
+                </button>
               </div>
 
               <!-- Toggle Button -->
@@ -281,19 +258,48 @@
                 ></iframe>
               </div>
 
-              <div class="lcd-display">
+              <div class="lcd-display-container">
                 <h3>LCD Display 16x2</h3>
-                <div class="lcd-grid">
-                  <!-- 16x2 grid -->
+                <div class="lcd-display">
+                  <!-- First Row -->
                   <div class="lcd-row">
-                    <div class="lcd-cell" data-row="0" data-col="0"></div>
-                    <div class="lcd-cell" data-row="0" data-col="1"></div>
-                    <!-- Добавьте остальные ячейки для первой строки -->
+                    <div class="lcd-cell" data-index="0"></div>
+                    <div class="lcd-cell" data-index="1"></div>
+                    <div class="lcd-cell" data-index="2"></div>
+                    <div class="lcd-cell" data-index="3"></div>
+                    <div class="lcd-cell" data-index="4"></div>
+                    <div class="lcd-cell" data-index="5"></div>
+                    <div class="lcd-cell" data-index="6"></div>
+                    <div class="lcd-cell" data-index="7"></div>
+                    <div class="lcd-cell" data-index="8"></div>
+                    <div class="lcd-cell" data-index="9"></div>
+                    <div class="lcd-cell" data-index="10"></div>
+                    <div class="lcd-cell" data-index="11"></div>
+                    <div class="lcd-cell" data-index="12"></div>
+                    <div class="lcd-cell" data-index="13"></div>
+                    <div class="lcd-cell" data-index="14"></div>
+                    <div class="lcd-cell" data-index="15"></div>
+                    <!-- Add remaining cells for the first row (total 16) -->
                   </div>
+                  <!-- Second Row -->
                   <div class="lcd-row">
-                    <div class="lcd-cell" data-row="1" data-col="0"></div>
-                    <div class="lcd-cell" data-row="1" data-col="1"></div>
-                    <!-- Добавьте остальные ячейки для второй строки -->
+                    <div class="lcd-cell" data-index="16"></div>
+                    <div class="lcd-cell" data-index="17"></div>
+                    <div class="lcd-cell" data-index="18"></div>
+                    <div class="lcd-cell" data-index="19"></div>
+                    <div class="lcd-cell" data-index="20"></div>
+                    <div class="lcd-cell" data-index="21"></div>
+                    <div class="lcd-cell" data-index="22"></div>
+                    <div class="lcd-cell" data-index="23"></div>
+                    <div class="lcd-cell" data-index="24"></div>
+                    <div class="lcd-cell" data-index="25"></div>
+                    <div class="lcd-cell" data-index="26"></div>
+                    <div class="lcd-cell" data-index="27"></div>
+                    <div class="lcd-cell" data-index="28"></div>
+                    <div class="lcd-cell" data-index="29"></div>
+                    <div class="lcd-cell" data-index="30"></div>
+                    <div class="lcd-cell" data-index="31"></div>
+                    <!-- Add remaining cells for the second row (total 16) -->
                   </div>
                 </div>
               </div>

@@ -1,27 +1,25 @@
-// Инициализация дисплея
+// Initialize display
 const lcdCells = document.querySelectorAll('.lcd-cell');
 let currentCell = null;
-let currentCellIndex = { row: 0, col: 0 };
+let currentCellIndex = 0;
 
-// Объект для хранения анимаций для каждой ячейки
-const cellAnimations = Array.from({ length: 2 }, () =>
-  Array.from({ length: 16 }, () => [])
-);
+// Object to store animations for each cell
+const cellAnimations = Array.from({ length: 32 }, () => []);
 
-// Функция для переключения на ячейку
-function switchCell(row, col) {
-  if (currentCell) {
+// Function to switch to a cell
+function switchCell(index) {
+  if (currentCell !== null) {
     currentCell.classList.remove('active');
-    // Сохраняем текущую анимацию в ячейку
-    cellAnimations[currentCellIndex.row][currentCellIndex.col] = JSON.parse(JSON.stringify(savedFrames));
+    // Save current animation to the cell
+    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
   }
 
-  currentCellIndex = { row, col };
-  currentCell = document.querySelector(`.lcd-cell[data-row="${row}"][data-col="${col}"]`);
+  currentCellIndex = index;
+  currentCell = document.querySelector(`.lcd-cell[data-index="${index}"]`);
   currentCell.classList.add('active');
 
-  // Загружаем анимацию для выбранной ячейки
-  savedFrames = JSON.parse(JSON.stringify(cellAnimations[row][col]));
+  // Load animation for the selected cell
+  savedFrames = JSON.parse(JSON.stringify(cellAnimations[index]));
   renderSavedFrames();
   if (savedFrames.length > 0) {
     loadFrame(savedFrames[0]);
@@ -30,14 +28,13 @@ function switchCell(row, col) {
   }
 }
 
-// Обработчик клика на ячейку
+// Click event handler for cells
 lcdCells.forEach(cell => {
   cell.addEventListener('click', () => {
-    const row = parseInt(cell.getAttribute('data-row'));
-    const col = parseInt(cell.getAttribute('data-col'));
-    switchCell(row, col);
+    const index = parseInt(cell.getAttribute('data-index'));
+    switchCell(index);
   });
 });
 
-// Инициализация первой ячейки
-switchCell(0, 0);
+// Initialize the first cell as active
+switchCell(0);

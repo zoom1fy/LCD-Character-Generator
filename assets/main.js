@@ -247,9 +247,13 @@ function showContextMenu(event, index) {
   document.body.appendChild(contextMenu);
 
   // Удаляем контекстное меню при клике вне его
-  document.addEventListener("click", () => {
-    document.body.removeChild(contextMenu);
-  }, { once: true });
+  document.addEventListener(
+    "click",
+    () => {
+      document.body.removeChild(contextMenu);
+    },
+    { once: true }
+  );
 }
 
 /*============ ВОСПРОИЗВЕДЕНИЕ АНИМАЦИИ ============*/
@@ -310,14 +314,34 @@ $(document).ready(function () {
   $("#customCharacterLink").click(function () {
     $("#tab-pixel").show();
     $("#tab-code").hide();
-    document.getElementById('customCharacterLink').setAttribute('class', 'active')
-    document.getElementById('arduinoCodeLink').removeAttribute('class', 'active')
+    document
+      .getElementById("customCharacterLink")
+      .setAttribute("class", "active");
+    document
+      .getElementById("arduinoCodeLink")
+      .removeAttribute("class", "active");
   });
 
   $("#arduinoCodeLink").click(function () {
     $("#tab-code").show();
     $("#tab-pixel").hide();
-    document.getElementById('customCharacterLink').removeAttribute('class', 'active')
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'active')
+    document
+      .getElementById("customCharacterLink")
+      .removeAttribute("class", "active");
+    document.getElementById("arduinoCodeLink").setAttribute("class", "active");
   });
 });
+
+document
+  .getElementById("toggle-pdf-button")
+  .addEventListener("click", function () {
+    const pdfPanel = document.getElementById("pdf-panel");
+    pdfPanel.classList.add("open");
+  });
+
+document
+  .getElementById("close-pdf-button")
+  .addEventListener("click", function () {
+    const pdfPanel = document.getElementById("pdf-panel");
+    pdfPanel.classList.remove("open");
+  });

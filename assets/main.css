@@ -192,3 +192,84 @@ input[type="range"] {
 .symbol-cell.off {
     background-color: #fff;
 }
+
+.lcd-display {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.lcd-grid {
+    display: grid;
+    grid-template-columns: repeat(16, 20px);
+    grid-template-rows: repeat(2, 20px);
+    gap: 2px;
+}
+
+.lcd-cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.lcd-cell.active {
+    border: 2px solid #007bff;
+}
+
+.bookmark-button {
+    position: fixed;
+    top: 300px;
+    left: -15px;
+    /* Adjust to control how much it "sticks out" */
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0 0 5px 5px;
+    /* Rounded corners at the bottom */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: left 0.3s ease;
+    z-index: 555;
+    /* Ensure it stays above the panel */
+}
+
+.bookmark-button:hover {
+    left: -10px;
+    /* Slightly move out on hover */
+}
+
+.pdf-panel {
+    position: fixed;
+    top: 0;
+    left: -500px;
+    /* Initially hidden */
+    width: 500px;
+    height: 100%;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease;
+    z-index: 1000;
+}
+
+.pdf-panel.open {
+    left: 0;
+    /* Visible */
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 100px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

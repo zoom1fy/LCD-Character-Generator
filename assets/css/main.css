@@ -1,3 +1,40 @@
+:root {
+    --color-off: #5EFB6E;
+    --color-on: #484848;
+    --color-on-gray: rgb(238, 65, 65);
+    --color-border: #ccc;
+    --color-btn-danger: #dc3545;
+    --color-btn-danger-hover: #c82333;
+    --color-btn-warning: #ffc107;
+    --color-btn-warning-hover: #e0a800;
+    --color-btn-primary: #007bff;
+    --color-btn-primary-hover: #0056b3;
+    --color-btn-focus: rgba(0, 123, 255, 0.5);
+    --color-saved-frames-border: #ced4da;
+    --color-saved-frames-bg: #ffffff;
+    --color-saved-frames-shadow: rgba(0, 0, 0, 0.1);
+    --color-saved-frame-border: #ced4da;
+    --color-controls-border: #ced4da;
+    --color-controls-bg: #ffffff;
+    --color-controls-shadow: rgba(0, 0, 0, 0.1);
+    --color-symbol-cell-on: #000;
+    --color-symbol-cell-off: #fff;
+    --color-lcd-display-bg: #324d22;
+    --color-lcd-cell-bg: #5f9341;
+    --color-lcd-cell-active-border: #00ff04;
+    --color-bookmark-button-bg: #007bff;
+    --color-bookmark-button-open-bg: #dc3545;
+    --color-bookmark-button-shadow: rgba(0, 0, 0, 0.3);
+    --color-pdf-panel-bg: white;
+    --color-pdf-panel-shadow: rgba(0, 0, 0, 0.3);
+    --color-select-border: #ccc;
+    --color-select-bg: #f9f9f9;
+    --color-select-color: #333;
+    --color-select-focus-border: #007BFF;
+    --color-option-bg: #fff;
+    --color-option-color: #333;
+}
+
 #pixels,
 #code,
 #pins,
@@ -21,31 +58,26 @@ pre {
 .pixel {
     width: 20px;
     height: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
 }
 
 .off {
-    background: #5EFB6E;
+    background: var(--color-off);
 }
 
 .on {
-    background: #484848;
-
+    background: var(--color-on);
 }
 
 .onGray {
-    background: rgb(238, 65, 65);
+    background: var(--color-on-gray);
 }
 
 .butContainer {
     justify-content: center;
-    /* Horizontally center the buttons */
     display: flex;
-    /* Use flexbox to arrange buttons in a row */
     align-items: center;
-    /* Vertically center the buttons */
     gap: 20px;
-    /* Optional: space between buttons */
     margin-bottom: 20px;
 }
 
@@ -62,40 +94,39 @@ pre {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Button colors */
 .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: var(--color-btn-danger);
+    border-color: var(--color-btn-danger);
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
+    background-color: var(--color-btn-danger-hover);
+    border-color: var(--color-btn-danger-hover);
 }
 
 .btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background-color: var(--color-btn-warning);
+    border-color: var(--color-btn-warning);
 }
 
 .btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
+    background-color: var(--color-btn-warning-hover);
+    border-color: var(--color-btn-warning-hover);
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--color-btn-primary);
+    border-color: var(--color-btn-primary);
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
+    background-color: var(--color-btn-primary-hover);
+    border-color: var(--color-btn-primary-hover);
 }
 
 .btn-custom:focus {
     outline: none;
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 10px var(--color-btn-focus);
 }
 
 .animation-controls {
@@ -109,13 +140,12 @@ pre {
     margin-bottom: 30px;
 }
 
-
 .saved-frames {
     padding: 10px;
-    border: 1px solid #ced4da;
-    background-color: #ffffff;
+    border: 1px solid var(--color-saved-frames-border);
+    background-color: var(--color-saved-frames-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--color-saved-frames-shadow);
     width: 600px;
     height: 100px;
     display: flex;
@@ -139,17 +169,14 @@ pre {
 .saved-frame {
     width: 50px;
     height: 80px;
-    border: 1px solid #ced4da;
+    border: 1px solid var(--color-saved-frame-border);
     border-radius: 4px;
-    background-color: #ffffff;
+    background-color: var(--color-saved-frames-bg);
     cursor: pointer;
     display: flex;
     align-items: center;
-    /* Центровка по вертикали */
     justify-content: center;
-    /* Центровка по горизонтали */
     text-align: center;
-    /* Текст внутри блока по центру */
     font-size: 12px;
     font-weight: bold;
     color: #495057;
@@ -160,10 +187,10 @@ pre {
     margin-top: 20px;
     margin-left: 30px;
     padding: 10px;
-    border: 1px solid #ced4da;
-    background-color: #ffffff;
+    border: 1px solid var(--color-controls-border);
+    background-color: var(--color-controls-bg);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--color-controls-shadow);
     width: 600px;
     height: 100px;
 }
@@ -195,16 +222,16 @@ input[type="range"] {
 .symbol-cell {
     width: 20px;
     height: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
     cursor: pointer;
 }
 
 .symbol-cell.on {
-    background-color: #000;
+    background-color: var(--color-symbol-cell-on);
 }
 
 .symbol-cell.off {
-    background-color: #fff;
+    background-color: var(--color-symbol-cell-off);
 }
 
 .lcd-display-container {
@@ -217,8 +244,8 @@ input[type="range"] {
 .lcd-display {
     margin-top: 20px;
     padding: 10px;
-    border: 1px solid #ccc;
-    background-color: #324d22;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-lcd-display-bg);
     border-radius: 8px;
 }
 
@@ -229,32 +256,29 @@ input[type="range"] {
 .lcd-cell {
     width: 50px;
     height: 82px;
-    border: 1px solid #ccc;
-    background-color: #fff;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-lcd-cell-bg);
     cursor: pointer;
     margin: 2px;
     position: relative;
-    background-color: #5f9341;
 }
 
 .lcd-cell.active {
-    border: 2px solid #00ff04;
+    border: 2px solid var(--color-lcd-cell-active-border);
 }
 
 .bookmark-button {
     position: fixed;
     top: 300px;
     left: -15px;
-    /* Adjust to control how much it "sticks out" */
     transform: rotate(-90deg);
     transform-origin: top left;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: var(--color-bookmark-button-bg);
     color: white;
     border: none;
     border-radius: 0 0 5px 5px;
-    /* Rounded corners at the bottom */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 5px var(--color-bookmark-button-shadow);
     cursor: pointer;
     transition: left 0.3s ease;
     z-index: 555;
@@ -263,75 +287,56 @@ input[type="range"] {
 
 .bookmark-button.open {
     left: 500px;
-    background-color: #dc3545;
+    background-color: var(--color-bookmark-button-open-bg);
 }
 
 .bookmark-button.open:hover {
     left: 495px;
-    /* Slightly move out on hover */
 }
 
 .bookmark-button:hover {
     left: -10px;
-    /* Slightly move out on hover */
 }
 
 .pdf-panel {
     position: fixed;
     top: 0;
     left: -500px;
-    /* Initially hidden */
     width: 500px;
     height: 100%;
-    background-color: white;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    background-color: var(--color-pdf-panel-bg);
+    box-shadow: 2px 0 5px var(--color-pdf-panel-shadow);
     transition: left 0.3s ease;
     z-index: 1000;
 }
 
 .pdf-panel.open {
     left: 0;
-    /* Visible */
 }
 
-.close-button {
-    position: absolute;
-    top: 50px;
-    right: 100px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Стиль для элемента select */
 select {
     width: 200px;
     padding: 10px;
     font-size: 16px;
-    border: 2px solid #ccc;
+    border: 2px solid var(--color-select-border);
     border-radius: 5px;
-    background-color: #f9f9f9;
-    color: #333;
+    background-color: var(--color-select-bg);
+    color: var(--color-select-color);
     appearance: none;
-    /* Убираем стандартное оформление */
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="%23333" d="M0 0l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 10px;
 }
 
-/* Стиль для элемента select при фокусе */
 select:focus {
-    border-color: #007BFF;
+    border-color: var(--color-select-focus-border);
     outline: none;
 }
 
-/* Стиль для элемента option */
 option {
     padding: 10px;
     font-size: 16px;
-    background-color: #fff;
-    color: #333;
+    background-color: var(--color-option-bg);
+    color: var(--color-option-color);
 }

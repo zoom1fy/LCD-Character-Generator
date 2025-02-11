@@ -227,8 +227,8 @@ input[type="range"] {
 }
 
 .lcd-cell {
-    width: 20px;
-    height: 40px;
+    width: 50px;
+    height: 82px;
     border: 1px solid #ccc;
     background-color: #fff;
     cursor: pointer;

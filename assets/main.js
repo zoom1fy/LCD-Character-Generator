@@ -4,6 +4,14 @@ let customchar = Array.from({ length: 8 }, () => Array(5).fill(0));
 
 let fps = 2; // Начальное значение FPS
 
+// Инициализация
+let lcdCells = document.querySelectorAll(".lcd-cell");
+let currentCell = null;
+let currentCellIndex = 0;
+
+// Хранение кадров для каждой ячейки
+let cellAnimations = Array.from({ length: 32 }, () => []);
+
 // Память, зарезервированная для одного символа на Arduino (40 байт)
 const memoryPerChar = 40;
 
@@ -16,12 +24,6 @@ function calculateMemoryUsage() {
 
   // Оставшаяся память
   let remainingMemory = totalMemory - usedMemory;
-
-  console.log("======LOG========");
-  console.log("Использованная память: " + usedMemory);
-  console.log("Оставшаяся память: " + remainingMemory);
-  console.log("Количество сохраненных кадров: " + savedFrames.length);
-  console.log("=================");
 
   // Выводим оставшуюся память в элемент с id "memory-status"
   document.getElementById(
@@ -134,8 +136,10 @@ function saveFrame() {
   // Проверяем, достаточно ли памяти для нового кадра
   if (savedFrames.length * memoryPerChar < totalMemory) {
     savedFrames.push(JSON.parse(JSON.stringify(customchar))); // Сохраняем кадр
+    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames)); // Обновляем анимацию для текущей ячейки
     renderSavedFrames(); // Обновляем отображение сохраненных кадров
     calculateMemoryUsage(); // Пересчитываем память после сохранения кадра
+    startCellAnimation(currentCellIndex); // Запускаем анимацию для текущей ячейки
   } else {
     alert("Недостаточно памяти для сохранения нового кадра!");
   }
@@ -194,12 +198,14 @@ function renderSavedFrames() {
     });
 
     savedFramesContainer.appendChild(canvas);
+    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
   });
 }
 
 // Функция для удаления кадра
 function deleteFrame(index) {
   savedFrames.splice(index, 1); // Удаляем кадр из массива
+  cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames)); // Обновляем анимацию для текущей ячейки
   renderSavedFrames(); // Перерисовываем список кадров
   calculateMemoryUsage(); // Пересчитываем память после удаления кадра
 }
@@ -208,6 +214,7 @@ function deleteFrame(index) {
 function duplicateFrame(index) {
   const frame = savedFrames[index];
   savedFrames.splice(index, 0, JSON.parse(JSON.stringify(frame))); // Дублируем кадр
+  cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
   renderSavedFrames(); // Перерисовываем список кадров
   calculateMemoryUsage(); // Пересчитываем память после дублирования кадра
 }

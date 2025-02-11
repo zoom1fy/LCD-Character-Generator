@@ -286,16 +286,18 @@ input[type="range"] {
 }
 
 .bookmark-button.open {
-    left: 500px;
+    left: 495px;
     background-color: var(--color-bookmark-button-open-bg);
 }
 
 .bookmark-button.open:hover {
-    left: 495px;
+    left: 490px;
+    color: white;
 }
 
 .bookmark-button:hover {
     left: -10px;
+    color: white;
 }
 
 .pdf-panel {

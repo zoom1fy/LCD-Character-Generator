@@ -258,9 +258,21 @@
                 >
                   Close
                 </button>
+
+                <!-- Добавляем выпадающий список для выбора PDF -->
+                <select id="pdf-select" class="form-control">
+                  <option value="./assets/pdf/MT–20S4A_symbols_table.pdf">
+                    MT–20S4A
+                  </option>
+                  <option value="./assets/pdf/HD44780U_symbols_table.pdf">
+                    HD44780U
+                  </option>
+                </select>
+
+                <!-- IFRAME для отображения PDF -->
                 <iframe
                   id="pdf-viewer"
-                  src="./assets/symbols_table_pdf.pdf"
+                  src="./assets/pdf/MT–20S4A_symbols_table.pdf"
                   width="100%"
                   height="100%"
                 ></iframe>

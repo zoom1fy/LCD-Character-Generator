@@ -352,3 +352,25 @@ document
     const pdfPanel = document.getElementById("pdf-panel");
     pdfPanel.classList.remove("open");
   });
+
+// Обработчик события для изменения выбора в select
+document.getElementById("pdf-select").addEventListener("change", function () {
+  const selectedPdf = this.value;
+  document.getElementById("pdf-viewer").src = selectedPdf;
+});
+
+// Обработчик для закрытия панели PDF
+document
+  .getElementById("close-pdf-button")
+  .addEventListener("click", function () {
+    const pdfPanel = document.getElementById("pdf-panel");
+    pdfPanel.classList.remove("open");
+  });
+
+// Обработчик для открытия панели PDF
+document
+  .getElementById("toggle-pdf-button")
+  .addEventListener("click", function () {
+    const pdfPanel = document.getElementById("pdf-panel");
+    pdfPanel.classList.add("open");
+  });

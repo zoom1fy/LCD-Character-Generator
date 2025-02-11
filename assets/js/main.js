@@ -343,14 +343,19 @@ document
   .getElementById("toggle-pdf-button")
   .addEventListener("click", function () {
     const pdfPanel = document.getElementById("pdf-panel");
-    pdfPanel.classList.add("open");
-  });
+    const pdfBut = document.getElementById("toggle-pdf-button");
 
-document
-  .getElementById("close-pdf-button")
-  .addEventListener("click", function () {
-    const pdfPanel = document.getElementById("pdf-panel");
-    pdfPanel.classList.remove("open");
+    if (pdfBut.hasAttribute("data-status")) {
+      pdfBut.removeAttribute("data-status");
+      pdfPanel.classList.remove("open");
+      pdfBut.classList.remove("open");
+      pdfBut.innerText = "Symbols table";
+    } else {
+      pdfBut.setAttribute("data-status", "active");
+      pdfPanel.classList.add("open");
+      pdfBut.classList.add("open");
+      pdfBut.innerText = "Close";
+    }
   });
 
 // Обработчик события для изменения выбора в select
@@ -358,19 +363,3 @@ document.getElementById("pdf-select").addEventListener("change", function () {
   const selectedPdf = this.value;
   document.getElementById("pdf-viewer").src = selectedPdf;
 });
-
-// Обработчик для закрытия панели PDF
-document
-  .getElementById("close-pdf-button")
-  .addEventListener("click", function () {
-    const pdfPanel = document.getElementById("pdf-panel");
-    pdfPanel.classList.remove("open");
-  });
-
-// Обработчик для открытия панели PDF
-document
-  .getElementById("toggle-pdf-button")
-  .addEventListener("click", function () {
-    const pdfPanel = document.getElementById("pdf-panel");
-    pdfPanel.classList.add("open");
-  });

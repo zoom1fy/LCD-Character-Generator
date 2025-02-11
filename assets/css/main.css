@@ -258,7 +258,17 @@ input[type="range"] {
     cursor: pointer;
     transition: left 0.3s ease;
     z-index: 555;
-    /* Ensure it stays above the panel */
+    width: 140px;
+}
+
+.bookmark-button.open {
+    left: 500px;
+    background-color: #dc3545;
+}
+
+.bookmark-button.open:hover {
+    left: 495px;
+    /* Slightly move out on hover */
 }
 
 .bookmark-button:hover {

@@ -64,6 +64,8 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     transition: 0.5s;
+    font-family: "Segoe UI", "Ubuntu", "Roboto", "Noto Sans", sans-serif !important;
+    font-weight: bold !important;
 }
 
 /* ==========================================================================

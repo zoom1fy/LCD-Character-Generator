@@ -485,3 +485,9 @@ document
       }
     }
   });
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  document.body.setAttribute(
+    "data-theme",
+    document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"
+  );
+});

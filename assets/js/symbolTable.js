@@ -12,9 +12,15 @@ symbols.forEach((symbol, index) => {
   canvas.height = 20;
   const ctx = canvas.getContext("2d");
 
+  const rootStyles = getComputedStyle(document.documentElement);
+  const textColor = rootStyles.getPropertyValue("--text-color").trim();
+  const savedFramesBg = rootStyles
+    .getPropertyValue("--color-saved-frames-bg")
+    .trim();
+
   symbol.forEach((row, i) => {
     row.forEach((val, j) => {
-      ctx.fillStyle = val ? "#000" : "#fff";
+      ctx.fillStyle = val ? textColor : savedFramesBg;
       ctx.fillRect(j * 4, i * 2.5, 4, 2.5);
     });
   });

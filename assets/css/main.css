@@ -1,4 +1,7 @@
 :root {
+    /* Светлая тема */
+    --background-color: #f5f5f5;
+    --text-color: black;
     --color-off: #5EFB6E;
     --color-on: #484848;
     --color-on-gray: rgb(238, 65, 65);
@@ -35,6 +38,25 @@
     --color-option-color: #333;
 }
 
+/* Темная тема */
+[data-theme="dark"] {
+    --background-color: #333;
+    --text-color: white;
+    --color-off: #5EFB6E;
+    --color-on: #484848;
+    --color-on-gray: rgb(238, 65, 65);
+    --color-saved-frames-border: #484848;
+    --color-saved-frames-bg: #333;
+    --color-saved-frames-shadow: rgba(255, 255, 255, 0.254);
+    --color-controls-border: #484848;
+    --color-controls-bg: #333;
+    --color-controls-shadow: rgba(255, 255, 255, 0.254);
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
 
 #pixels,
 #code,
@@ -149,6 +171,24 @@ pre {
     margin-bottom: 30px;
 }
 
+
+.output {
+    resize: none;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--color-saved-frames-bg);
+    opacity: 1;
+    color: var(--text-color);
+    box-shadow: 0 2px 4px var(--color-saved-frames-shadow);
+}
+
+.badge {
+    font-size: 12px;
+    cursor: pointer;
+}
+
 .saved-frames {
     padding: 10px;
     border: 1px solid var(--color-saved-frames-border);
@@ -218,7 +258,7 @@ input[type="range"] {
 
 #fpsValue {
     font-weight: bold;
-    color: #495057;
+    color: var(--text-color)
 }
 
 .symbol-table {

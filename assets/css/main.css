@@ -35,14 +35,6 @@
     --color-option-color: #333;
 }
 
-.nav-btn {
-    margin-left: 10px;
-  }
-  
-  .d-none {
-    display: none;
-  }
-  
 
 #pixels,
 #code,
@@ -53,6 +45,14 @@
 
 pre {
     text-align: left;
+}
+
+.nav-btn {
+    margin-left: 10px;
+}
+
+.d-none {
+    display: none;
 }
 
 .jumbotron {

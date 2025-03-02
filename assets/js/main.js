@@ -141,7 +141,7 @@ function saveFrame() {
     calculateMemoryUsage(); // Пересчитываем память после сохранения кадра
     startCellAnimation(currentCellIndex); // Запускаем анимацию для текущей ячейки
   } else {
-    alert("Недостаточно памяти для сохранения нового кадра!");
+    showErrorAlert("There is not enough space to save the new frame");
   }
 }
 
@@ -351,12 +351,53 @@ function saveStateToFile() {
   document.body.removeChild(a);
 }
 
+/*============ АЛЕРТЫ ============*/
+function showConfirmationAlert(message, callback) {
+  Swal.fire({
+    title: message,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      callback();
+    }
+  });
+}
+
+function showErrorAlert(message) {
+  Swal.fire({
+    title: "Error",
+    text: message,
+    icon: "error",
+    confirmButtonText: "Ok",
+    confirmButtonColor: "#3085d6",
+  });
+}
+
+function showSoonAlert(message, callback) {
+  Swal.fire({
+    title: "This section is still under development :(",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  });
+}
+
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 // Слушатели событий
 $(document).ready(function () {
   clear();
 
-  $("#clear").click(clear);
+  $("#clear").click(function () {
+    showConfirmationAlert("Do you really want to clear the frame?", clear);
+  });
   $("#invert").click(invert);
   $("#reflectHorizontal").click(reflectHorizontal);
   $("#reflectVertical").click(reflectVertical);
@@ -436,7 +477,7 @@ document
       try {
         loadStateFromFile(file);
       } catch {
-        alert("Что-то пошло не так...");
+        showErrorAlert("Something went wrong...");
       }
     }
   });

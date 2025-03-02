@@ -1,7 +1,7 @@
-/* Стили для кнопки */
+/* Стили для кнопки переключения темы */
 .theme-toggle-button {
-    background-color: #333;
-    color: #fff;
+    background-color: var(--color-btn-primary);
+    color: white;
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -12,41 +12,28 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: background-color 0.3s;
-}
-
-.theme-toggle-button .icon {
+    transition: background-color 0.6s;
+  }
+  
+  .theme-toggle-button .icon {
     position: absolute;
     transition: opacity 0.3s;
-}
-
-.theme-toggle-button .icon:nth-child(1) {
+  }
+  
+  .theme-toggle-button .moon {
     opacity: 1;
-}
-
-.theme-toggle-button .icon:nth-child(2) {
+  }
+  
+  .theme-toggle-button .sun {
     opacity: 0;
-}
-
-/* Анимация при наведении */
-.theme-toggle-button:hover {
-    background-color: #555;
-}
-
-/* Стили для темной темы */
-body.dark-theme .theme-toggle-button {
-    background-color: #fff;
-    color: #333;
-}
-
-body.dark-theme .theme-toggle-button:hover {
-    background-color: #ddd;
-}
-
-body.dark-theme .theme-toggle-button .icon:nth-child(1) {
+  }
+  
+  /* Стили для темной темы */
+  [data-theme="dark"] .theme-toggle-button .moon {
     opacity: 0;
-}
-
-body.dark-theme .theme-toggle-button .icon:nth-child(2) {
+  }
+  
+  [data-theme="dark"] .theme-toggle-button .sun {
     opacity: 1;
-}
+  }
+  

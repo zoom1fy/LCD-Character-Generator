@@ -24,13 +24,24 @@
       </a>
       <a class="navbar-brand" href="#">LCD Character Generator</a>
       <ul class="navbar-nav ml-auto">
-        <li class="nav-item" id="">
+        <li class="nav-item">
           <a
             class="nav-link"
             target="_blank"
             href="https://github.com/ZoomCH02/LCD-Character-Generator"
-            >project source on github
-          </a>
+            >project source on github</a
+          >
+        </li>
+        <li class="nav-item">
+          <button id="save-state" class="btn btn-success nav-btn">
+            Save State
+          </button>
+        </li>
+        <li class="nav-item">
+          <input type="file" id="load-state" class="d-none" accept=".json" />
+          <button id="load-state-btn" class="btn btn-primary nav-btn">
+            Load State
+          </button>
         </li>
       </ul>
 
@@ -243,10 +254,7 @@
               </div>
 
               <!-- Toggle Button -->
-              <button
-                id="toggle-pdf-button"
-                class="btn bookmark-button"
-              >
+              <button id="toggle-pdf-button" class="btn bookmark-button">
                 Symbols table
               </button>
 

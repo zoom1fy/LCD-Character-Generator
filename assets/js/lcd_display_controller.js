@@ -2,7 +2,6 @@ const lcdSelect = document.getElementById("lcd-select");
 const lcdDisplay = document.getElementById("lcd-display");
 
 // Функция создания ячеек LCD
-// Функция создания ячеек LCD
 function createLcdCells(rows, cols) {
   lcdDisplay.innerHTML = ""; // Очистка экрана перед созданием новых ячеек
 
@@ -44,13 +43,11 @@ function createLcdCells(rows, cols) {
   switchCell(0);
 }
 
-
 // Обработчик изменения select
 lcdSelect.addEventListener("change", (event) => {
   const [cols, rows] = event.target.value.split("x").map(Number);
   createLcdCells(rows, cols);
 });
-
 
 function switchCell(index) {
   if (currentCell !== null) {
@@ -103,6 +100,16 @@ function startCellAnimation(cellIndex) {
   }
 
   cell.dataset.animationFrame = requestAnimationFrame(animate);
+}
+
+function startAllCellsAnimations() {
+  lcdCells.forEach((cell, index) => {
+    if (cellAnimations[index].length > 0) {
+      try {
+        startCellAnimation(index);
+      } catch {}
+    }
+  });
 }
 
 function renderFrameInCell(cell, frame) {

@@ -295,6 +295,62 @@ function stopAnimation() {
   document.getElementById("play-animation").innerText = "Start Animation";
 }
 
+/*============ СОXРАНЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
+
+function loadStateFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const state = JSON.parse(event.target.result);
+    customchar = state.customchar;
+    fps = state.fps;
+    savedFrames = state.savedFrames;
+    currentCellIndex = state.currentCellIndex;
+    cellAnimations = state.cellAnimations;
+
+    updateAllPixels();
+    renderSavedFrames();
+    calculateMemoryUsage();
+    generateOutput();
+    startAllCellsAnimations();
+  };
+  reader.readAsText(file);
+}
+
+function saveStateToFile() {
+  const state = {
+    customchar,
+    fps,
+    savedFrames,
+    currentCellIndex,
+    cellAnimations,
+    memoryPerChar,
+    totalMemory,
+  };
+
+  const jsonState = JSON.stringify(state, null, 2);
+  const blob = new Blob([jsonState], { type: "application/json" });
+
+  // Получаем текущую дату и время
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Месяцы начинаются с 0
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  const formattedDate = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `saved_state_${formattedDate}.json`; // Имя файла с датой и временем
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 // Слушатели событий
 $(document).ready(function () {
@@ -363,3 +419,24 @@ document.getElementById("pdf-select").addEventListener("change", function () {
   const selectedPdf = this.value;
   document.getElementById("pdf-viewer").src = selectedPdf;
 });
+
+document
+  .getElementById("save-state")
+  .addEventListener("click", saveStateToFile);
+document
+  .getElementById("load-state-btn")
+  .addEventListener("click", function () {
+    document.getElementById("load-state").click();
+  });
+document
+  .getElementById("load-state")
+  .addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        loadStateFromFile(file);
+      } catch {
+        alert("Что-то пошло не так...");
+      }
+    }
+  });

@@ -35,6 +35,15 @@
     --color-option-color: #333;
 }
 
+.nav-btn {
+    margin-left: 10px;
+  }
+  
+  .d-none {
+    display: none;
+  }
+  
+
 #pixels,
 #code,
 #pins,

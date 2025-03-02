@@ -212,11 +212,15 @@ function deleteFrame(index) {
 
 // Функция для дублирования кадра
 function duplicateFrame(index) {
-  const frame = savedFrames[index];
-  savedFrames.splice(index, 0, JSON.parse(JSON.stringify(frame))); // Дублируем кадр
-  cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
-  renderSavedFrames(); // Перерисовываем список кадров
-  calculateMemoryUsage(); // Пересчитываем память после дублирования кадра
+  if (savedFrames.length * memoryPerChar < totalMemory) {
+    const frame = savedFrames[index];
+    savedFrames.splice(index, 0, JSON.parse(JSON.stringify(frame))); // Дублируем кадр
+    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
+    renderSavedFrames(); // Перерисовываем список кадров
+    calculateMemoryUsage(); // Пересчитываем память после дублирования кадра
+  } else {
+    showErrorAlert("There is not enough space to save the new frame");
+  }
 }
 
 // Функция для отображения контекстного меню

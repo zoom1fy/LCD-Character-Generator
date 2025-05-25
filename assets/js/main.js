@@ -561,10 +561,10 @@ async function copyToClipboard(elementId) {
 }
 
 /*============ УПРАВЛЕНИЕ ПРЕЛОАДЕРОМ ============*/
-window.onload = function () {
+document.addEventListener('DOMContentLoaded', () => {
   const preloader = document.getElementById('preloader');
   preloader.classList.add('hidden');
   setTimeout(() => {
     preloader.style.display = 'none';
-  }, 500); // Соответствует длительности transition в CSS
-};
+  }, 500);
+});

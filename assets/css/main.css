@@ -102,6 +102,10 @@ pre {
     text-align: center !important;
 }
 
+.nav-link:hover{
+    cursor: pointer;
+}
+
 /* ==========================================================================
    Пиксели и кнопки
    ========================================================================== */
@@ -134,11 +138,11 @@ pre {
 /* Уберите эти стили, если они есть */
 .dropdown-menu {
     display: none;
-  }
-  
-  .dropdown-menu.show {
+}
+
+.dropdown-menu.show {
     display: block;
-  }
+}
 
 .btn-custom {
     font-size: 16px;
@@ -387,6 +391,15 @@ input[type="range"] {
 .bookmark-button:hover {
     left: -10px;
     color: white;
+}
+
+.badge {
+    background-color: var(--color-bookmark-button-bg);
+    transition: transform 0.2s ease-in-out;
+}
+
+.badge:hover {
+    transform: scale(1.05);
 }
 
 .pdf-panel {

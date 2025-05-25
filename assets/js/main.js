@@ -481,14 +481,16 @@ $(document).ready(function () {
   $('#customCharacterLink').click(function () {
     $('#tab-pixel').show();
     $('#tab-code').hide();
-    document.getElementById('customCharacterLink').setAttribute('class', 'active');
+    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link active');
     document.getElementById('arduinoCodeLink').removeAttribute('class', 'active');
+    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link');
   });
   $('#arduinoCodeLink').click(function () {
     $('#tab-code').show();
     $('#tab-pixel').hide();
     document.getElementById('customCharacterLink').removeAttribute('class', 'active');
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'active');
+    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link');
+    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link active');
   });
   $('.dropdown-item[data-lang]').click(function (e) {
     e.preventDefault();

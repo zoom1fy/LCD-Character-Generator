@@ -43,6 +43,7 @@ const translations = {
     error: 'Error',
     lang_en: 'English',
     lang_ru: 'Russian',
+    loading: 'Loading...',
   },
   ru: {
     title: 'Генератор символов LCD',
@@ -85,6 +86,7 @@ const translations = {
     error: 'Ошибка',
     lang_en: 'English',
     lang_ru: 'Русский',
+    loading: 'Загрузка...',
   },
 };
 
@@ -557,3 +559,12 @@ async function copyToClipboard(elementId) {
     });
   }
 }
+
+/*============ УПРАВЛЕНИЕ ПРЕЛОАДЕРОМ ============*/
+window.onload = function () {
+  const preloader = document.getElementById('preloader');
+  preloader.classList.add('hidden');
+  setTimeout(() => {
+    preloader.style.display = 'none';
+  }, 500); // Соответствует длительности transition в CSS
+};

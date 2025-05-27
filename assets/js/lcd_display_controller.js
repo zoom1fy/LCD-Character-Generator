@@ -1,6 +1,12 @@
 const lcdSelect = document.getElementById('lcd-select');
 const lcdDisplay = document.getElementById('lcd-display');
 
+// Инициализация дисплея при загрузке
+window.addEventListener('DOMContentLoaded', () => {
+  const [cols, rows] = lcdSelect.value.split('x').map(Number);
+  createLcdCells(rows, cols);
+});
+
 // Функция создания ячеек LCD
 function createLcdCells(rows, cols) {
   lcdDisplay.innerHTML = ''; // Очистка экрана перед созданием новых ячеек

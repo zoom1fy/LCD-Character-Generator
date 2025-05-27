@@ -42,6 +42,7 @@ const translations = {
     lang_en: 'English',
     lang_ru: 'Russian',
     loading: 'Loading...',
+    error_load_json: "Something went wrong with json. Maybe it's an old version?"
   },
   ru: {
     title: 'Генератор символов LCD',
@@ -85,5 +86,6 @@ const translations = {
     lang_en: 'English',
     lang_ru: 'Русский',
     loading: 'Загрузка...',
+    "error_load_json": 'Что-то пошло не так с json. Возможно это старая версия файла?'
   },
 };

@@ -49,6 +49,9 @@ let lcdCells = document.querySelectorAll('.lcd-cell');
 let currentCell = null;
 let currentCellIndex = 0;
 let cellAnimations = Array.from({ length: 32 }, () => []);
+let displayAnimations = {}; // Объект для хранения анимаций по конфигурациям
+let currentConfig; // Текущая конфигурация дисплея (например, "16x2")
+
 const memoryPerChar = 40;
 const totalMemory = 320;
 
@@ -279,29 +282,6 @@ function stopAnimation() {
 }
 
 /*============ СОХРАНЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
-function loadStateFromFile(file) {
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    try {
-      const state = JSON.parse(event.target.result);
-      customchar = state.customchar;
-      fps = state.fps;
-      savedFrames = state.savedFrames;
-      currentCellIndex = state.currentCellIndex;
-      cellAnimations = state.cellAnimations;
-      // Игнорируем поле version для обратной совместимости
-      updateAllPixels();
-      renderSavedFrames();
-      calculateMemoryUsage();
-      generateOutput();
-      startAllCellsAnimations();
-    } catch {
-      showErrorAlert('error_load');
-    }
-  };
-  reader.readAsText(file);
-}
-
 function saveStateToFile() {
   const state = {
     version: PROJECT_VERSION,
@@ -309,7 +289,8 @@ function saveStateToFile() {
     fps,
     savedFrames,
     currentCellIndex,
-    cellAnimations,
+    displayAnimations, // Save animations for all displays
+    currentConfig, // Save the current configuration
     memoryPerChar,
     totalMemory,
   };
@@ -330,6 +311,44 @@ function saveStateToFile() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+function loadStateFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    try {
+      const state = JSON.parse(event.target.result);
+
+      // Check the version and load accordingly
+      if (state.version === '0.18.0') {
+        // New format: load displayAnimations and currentConfig
+        displayAnimations = state.displayAnimations;
+        currentConfig = state.currentConfig;
+        cellAnimations = displayAnimations[currentConfig];
+      } else {
+        // Old format: load cellAnimations for the current display
+        const [cols, rows] = currentConfig.split('x').map(Number);
+        displayAnimations[currentConfig] = state.cellAnimations || Array.from({ length: rows * cols }, () => []);
+        cellAnimations = displayAnimations[currentConfig];
+      }
+
+      // Load the remaining common fields
+      customchar = state.customchar;
+      fps = state.fps;
+      savedFrames = state.savedFrames;
+      currentCellIndex = state.currentCellIndex;
+
+      // Update the UI and state
+      updateAllPixels();
+      renderSavedFrames();
+      calculateMemoryUsage();
+      generateOutput();
+      startAllCellsAnimations();
+    } catch {
+      showErrorAlert('error_load_json');
+    }
+  };
+  reader.readAsText(file);
 }
 
 /*============ АЛЕРТЫ ============*/
@@ -479,4 +498,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     preloader.style.display = 'none';
   }, 500);
+});
+
+// Инициализация дисплея при загрузке
+window.addEventListener('DOMContentLoaded', () => {
+  currentConfig = lcdSelect.value; // Например, "16x2"
+  const [cols, rows] = currentConfig.split('x').map(Number);
+
+  // Инициализируем анимации для начальной конфигурации
+  displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
+  cellAnimations = displayAnimations[currentConfig];
+
+  createLcdCells(rows, cols);
 });

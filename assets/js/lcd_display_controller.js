@@ -97,22 +97,30 @@ function startCellAnimation(cellIndex) {
     return;
   }
 
+  // Проверяем, что все кадры — массивы
+  const isValid = cellAnimations[cellIndex].every(frame => Array.isArray(frame));
+  if (!isValid) {
+    console.error(`Invalid frames for cell ${cellIndex}:`, cellAnimations[cellIndex]);
+    return;
+  }
+
   const cell = document.querySelector(`.lcd-cell[data-index="${cellIndex}"]`);
   let frameIndex = 0;
-  const interval = 1000 / fps; // Интервал между кадрами в миллисекундах
+  const interval = 1000 / fps;
   let lastUpdate = 0;
 
   function animate(timestamp) {
     if (timestamp - lastUpdate >= interval) {
       lastUpdate = timestamp;
       const frame = cellAnimations[cellIndex][frameIndex];
-      renderFrameInCell(cell, frame);
-      frameIndex = (frameIndex + 1) % cellAnimations[cellIndex].length; // Увеличиваем индекс последовательно
+      if (frame !== undefined) {
+        renderFrameInCell(cell, frame);
+        frameIndex = (frameIndex + 1) % cellAnimations[cellIndex].length;
+      }
     }
     cell.dataset.animationFrame = requestAnimationFrame(animate);
   }
 
-  // Останавливаем предыдущую анимацию, если она еще работает
   if (cell.dataset.animationFrame) {
     cancelAnimationFrame(cell.dataset.animationFrame);
   }
@@ -122,10 +130,13 @@ function startCellAnimation(cellIndex) {
 
 function startAllCellsAnimations() {
   lcdCells.forEach((cell, index) => {
-    if (cellAnimations[index].length > 0) {
+    if (cellAnimations[index] && cellAnimations[index].length > 0) {
+      console.log(`Starting animation for cell ${index}:`, cellAnimations[index]);
       try {
         startCellAnimation(index);
-      } catch {}
+      } catch (e) {
+        console.error(`Error starting animation for cell ${index}:`, e);
+      }
     }
   });
 }
@@ -134,9 +145,8 @@ function renderFrameInCell(cell, frame) {
   const ctx = cell.getContext('2d');
   ctx.clearRect(0, 0, cell.width, cell.height);
 
-  // Check if frame is an array
   if (!Array.isArray(frame)) {
-    console.error('Frame is not an array:', frame);
+    console.error('Frame не является массивом:', frame);
     return;
   }
 

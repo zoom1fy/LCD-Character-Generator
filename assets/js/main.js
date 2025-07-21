@@ -1,25 +1,30 @@
-const PROJECT_VERSION = '0.18.0';
+const PROJECT_VERSION = "0.18.0";
 
 // Определение языка
-let userLang = (navigator.language || navigator.userLanguage).startsWith('ru') ? 'ru' : 'en';
+let userLang = (navigator.language || navigator.userLanguage).startsWith("ru")
+  ? "ru"
+  : "en";
 
 // Функция для применения переводов
 function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(element => {
-    const key = element.getAttribute('data-i18n');
-    if (key === 'remaining_memory') {
-      const memory = element.innerText.match(/\d+/) ? element.innerText.match(/\d+/)[0] : '1016';
-      element.innerText = translations[userLang][key].replace('{0}', memory);
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    if (key === "remaining_memory") {
+      const memory = element.innerText.match(/\d+/)
+        ? element.innerText.match(/\d+/)[0]
+        : "1016";
+      element.innerText = translations[userLang][key].replace("{0}", memory);
     } else {
       element.innerText = translations[userLang][key];
     }
   });
   document.title = translations[userLang].title;
   if (animationInterval) {
-    document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
+    document.getElementById("play-animation").innerText =
+      translations[userLang].stop_animation;
   }
-  const pdfBut = document.getElementById('toggle-pdf-button');
-  if (pdfBut.hasAttribute('data-status')) {
+  const pdfBut = document.getElementById("toggle-pdf-button");
+  if (pdfBut.hasAttribute("data-status")) {
     pdfBut.innerText = translations[userLang].close;
   }
   updateLanguageDropdown();
@@ -27,16 +32,18 @@ function applyTranslations() {
 
 // Обновление дропдауна языка
 function updateLanguageDropdown() {
-  const currentLangSpan = document.getElementById('current-language');
+  const currentLangSpan = document.getElementById("current-language");
   currentLangSpan.innerText = translations[userLang][`lang_${userLang}`];
-  document.querySelectorAll('.dropdown-item[data-lang]').forEach(item => {
-    item.addEventListener('click', function (e) {
+  document.querySelectorAll(".dropdown-item[data-lang]").forEach((item) => {
+    item.addEventListener("click", function (e) {
       e.preventDefault();
-      userLang = this.getAttribute('data-lang');
+      userLang = this.getAttribute("data-lang");
       applyTranslations();
 
       // Закрываем дропдаун после выбора
-      const dropdown = bootstrap.Dropdown.getInstance(document.querySelector('.dropdown-toggle'));
+      const dropdown = bootstrap.Dropdown.getInstance(
+        document.querySelector(".dropdown-toggle")
+      );
       dropdown.hide();
     });
   });
@@ -45,7 +52,7 @@ function updateLanguageDropdown() {
 /*============ ИНИЦИАЛИЗАЦИЯ И ПЕРЕМЕННЫЕ ============*/
 let customchar = Array.from({ length: 8 }, () => Array(5).fill(0));
 let fps = 2;
-let lcdCells = document.querySelectorAll('.lcd-cell');
+let lcdCells = document.querySelectorAll(".lcd-cell");
 let currentCell = null;
 let currentCellIndex = 0;
 let cellAnimations = Array.from({ length: 32 }, () => []);
@@ -55,20 +62,42 @@ let currentConfig; // Текущая конфигурация дисплея (н
 const memoryPerChar = 40;
 const totalMemory = 320;
 
+function generatePixelGrid(rows = 8, cols = 5) {
+  const gridContainer = document.getElementById("pixel-grid");
+  gridContainer.innerHTML = ""; // Очищаем контейнер
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      // Создаём canvas-элемент
+      const pixel = document.createElement("canvas");
+      pixel.id = `pixel-${row}-${col}`;
+      pixel.className = "pixel off";
+
+      // Добавляем в контейнер
+      gridContainer.appendChild(pixel);
+      gridContainer.appendChild(document.createTextNode(" "));
+    }
+
+    // После каждой строки добавляем <br> (кроме последней)
+    if (row < rows) {
+      gridContainer.appendChild(document.createElement("br"));
+    }
+  }
+}
+
 /*============ ФУНКЦИЯ ДЛЯ ВЫЧИСЛЕНИЯ ИСПОЛЬЗУЕМОЙ ПАМЯТИ ============*/
 function calculateMemoryUsage() {
   let usedMemory = savedFrames.length * memoryPerChar;
   let remainingMemory = totalMemory - usedMemory;
-  document.getElementById('memory-status').innerText = translations[userLang].remaining_memory.replace(
-    '{0}',
-    remainingMemory
-  );
+  document.getElementById("memory-status").innerText = translations[
+    userLang
+  ].remaining_memory.replace("{0}", remainingMemory);
 }
 
 /*============ ОБРАБОТЧИКИ СОБЫТИЙ И ИЗМЕНЕНИЯ FPS ============*/
-document.getElementById('fps').addEventListener('input', event => {
+document.getElementById("fps").addEventListener("input", (event) => {
   fps = Number(event.target.value);
-  document.getElementById('fpsValue').innerText = fps;
+  document.getElementById("fpsValue").innerText = fps;
   if (animationInterval) {
     stopAnimation();
     playAnimation();
@@ -77,17 +106,17 @@ document.getElementById('fps').addEventListener('input', event => {
 
 /*============ ОЧИСТКА И ОБНОВЛЕНИЕ ПИКСЕЛЕЙ ============*/
 function clear() {
-  customchar.forEach(row => row.fill(0));
-  $('.pixel').removeClass('on').addClass('off');
+  customchar.forEach((row) => row.fill(0));
+  $(".pixel").removeClass("on").addClass("off");
   generateOutput();
   calculateMemoryUsage();
 }
 
 function togglePixel(pixel) {
-  const [row, column] = pixel.id.split('-').slice(1).map(Number);
-  const isOn = pixel.classList.contains('on');
-  pixel.classList.toggle('on', !isOn);
-  pixel.classList.toggle('off', isOn);
+  const [row, column] = pixel.id.split("-").slice(1).map(Number);
+  const isOn = pixel.classList.contains("on");
+  pixel.classList.toggle("on", !isOn);
+  pixel.classList.toggle("off", isOn);
   customchar[row][column] = isOn ? 0 : 1;
   calculateMemoryUsage();
 }
@@ -96,22 +125,22 @@ function updateAllPixels() {
   customchar.forEach((row, i) => {
     row.forEach((val, j) => {
       const pixel = document.getElementById(`pixel-${i}-${j}`);
-      pixel.classList.toggle('on', val === 1);
-      pixel.classList.toggle('off', val === 0);
+      pixel.classList.toggle("on", val === 1);
+      pixel.classList.toggle("off", val === 0);
     });
   });
 }
 
 /*============ ГЕНЕРАЦИЯ ВЫВОДА ДЛЯ ARDUINO ============*/
 function generateOutput() {
-  let output = 'byte customChar[8] = {\n';
-  output += customchar.map(row => `\t0b${row.join('')}`).join(',\n');
-  output += '\n};';
-  $('.output').text(output);
-  $('#codeArduino').text(`#include <LiquidCrystal.h>
-    LiquidCrystal lcd(${$('#RSPin').val()}, ${$('#EnablePin').val()}, ${$('#D4Pin').val()}, ${$('#D5Pin').val()}, ${$(
-    '#D6Pin'
-  ).val()}, ${$('#D7Pin').val()});
+  let output = "byte customChar[8] = {\n";
+  output += customchar.map((row) => `\t0b${row.join("")}`).join(",\n");
+  output += "\n};";
+  $(".output").text(output);
+  $("#codeArduino").text(`#include <LiquidCrystal.h>
+    LiquidCrystal lcd(${$("#RSPin").val()}, ${$("#EnablePin").val()}, ${$(
+    "#D4Pin"
+  ).val()}, ${$("#D5Pin").val()}, ${$("#D6Pin").val()}, ${$("#D7Pin").val()});
     ${output}
     void setup() {
         lcd.createChar(0, customChar);
@@ -124,13 +153,13 @@ function generateOutput() {
 
 /*============ ТРАНСФОРМАЦИИ И ИНВЕРСИЯ ============*/
 function invert() {
-  customchar = customchar.map(row => row.map(val => 1 - val));
+  customchar = customchar.map((row) => row.map((val) => 1 - val));
   updateAllPixels();
   generateOutput();
 }
 
 function reflectHorizontal() {
-  customchar = customchar.map(row => row.reverse());
+  customchar = customchar.map((row) => row.reverse());
   updateAllPixels();
   generateOutput();
 }
@@ -144,7 +173,7 @@ function reflectVertical() {
 /*============ СОХРАНЕНИЕ И РЕНДЕРИНГ КАДРОВ ============*/
 let savedFrames = [];
 let currentFrameIndex = -1;
-const framesContainer = document.querySelector('.frames-container');
+const framesContainer = document.querySelector(".frames-container");
 
 function saveFrame() {
   if (savedFrames.length * memoryPerChar < totalMemory) {
@@ -154,43 +183,46 @@ function saveFrame() {
     calculateMemoryUsage();
     startCellAnimation(currentCellIndex);
   } else {
-    showErrorAlert('error_no_space');
+    showErrorAlert("error_no_space");
   }
 }
 
 function renderSavedFrames() {
-  const savedFramesContainer = document.getElementById('savedFrames');
-  savedFramesContainer.innerHTML = '';
+  const savedFramesContainer = document.getElementById("savedFrames");
+  savedFramesContainer.innerHTML = "";
   savedFrames.forEach((frame, index) => {
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = 50;
     canvas.height = 80;
-    canvas.className = 'saved-frame';
-    canvas.addEventListener('click', () => loadFrame(frame));
+    canvas.className = "saved-frame";
+    canvas.addEventListener("click", () => loadFrame(frame));
     canvas.draggable = true;
     canvas.dataset.index = index;
-    canvas.addEventListener('contextmenu', event => {
+    canvas.addEventListener("contextmenu", (event) => {
       event.preventDefault();
       showContextMenu(event, index);
     });
-    canvas.addEventListener('dragstart', event => {
-      event.dataTransfer.setData('text/plain', index);
+    canvas.addEventListener("dragstart", (event) => {
+      event.dataTransfer.setData("text/plain", index);
     });
-    canvas.addEventListener('dragover', event => {
+    canvas.addEventListener("dragover", (event) => {
       event.preventDefault();
     });
-    canvas.addEventListener('drop', event => {
+    canvas.addEventListener("drop", (event) => {
       event.preventDefault();
-      const draggedIndex = event.dataTransfer.getData('text/plain');
+      const draggedIndex = event.dataTransfer.getData("text/plain");
       const targetIndex = canvas.dataset.index;
-      [savedFrames[draggedIndex], savedFrames[targetIndex]] = [savedFrames[targetIndex], savedFrames[draggedIndex]];
+      [savedFrames[draggedIndex], savedFrames[targetIndex]] = [
+        savedFrames[targetIndex],
+        savedFrames[draggedIndex],
+      ];
       renderSavedFrames();
       calculateMemoryUsage();
     });
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     frame.forEach((row, i) => {
       row.forEach((val, j) => {
-        ctx.fillStyle = val ? '#000' : '#FFF';
+        ctx.fillStyle = val ? "#000" : "#FFF";
         ctx.fillRect(j * 10, i * 10, 10, 10);
       });
     });
@@ -214,32 +246,32 @@ function duplicateFrame(index) {
     renderSavedFrames();
     calculateMemoryUsage();
   } else {
-    showErrorAlert('error_no_space');
+    showErrorAlert("error_no_space");
   }
 }
 
 function showContextMenu(event, index) {
-  const contextMenu = document.createElement('div');
-  contextMenu.className = 'context-menu';
-  contextMenu.style.position = 'absolute';
+  const contextMenu = document.createElement("div");
+  contextMenu.className = "context-menu";
+  contextMenu.style.position = "absolute";
   contextMenu.style.left = `${event.pageX}px`;
   contextMenu.style.top = `${event.pageY}px`;
-  contextMenu.style.backgroundColor = '#fff';
-  contextMenu.style.border = '1px solid #ccc';
-  contextMenu.style.padding = '10px';
-  contextMenu.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+  contextMenu.style.backgroundColor = "#fff";
+  contextMenu.style.border = "1px solid #ccc";
+  contextMenu.style.padding = "10px";
+  contextMenu.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.1)";
   contextMenu.style.zIndex = 1000;
-  const duplicateItem = document.createElement('div');
+  const duplicateItem = document.createElement("div");
   duplicateItem.innerText = translations[userLang].duplicate;
-  duplicateItem.style.cursor = 'pointer';
-  duplicateItem.addEventListener('click', () => {
+  duplicateItem.style.cursor = "pointer";
+  duplicateItem.addEventListener("click", () => {
     duplicateFrame(index);
     document.body.removeChild(contextMenu);
   });
-  const deleteItem = document.createElement('div');
+  const deleteItem = document.createElement("div");
   deleteItem.innerText = translations[userLang].delete;
-  deleteItem.style.cursor = 'pointer';
-  deleteItem.addEventListener('click', () => {
+  deleteItem.style.cursor = "pointer";
+  deleteItem.addEventListener("click", () => {
     deleteFrame(index);
     document.body.removeChild(contextMenu);
   });
@@ -247,7 +279,7 @@ function showContextMenu(event, index) {
   contextMenu.appendChild(deleteItem);
   document.body.appendChild(contextMenu);
   document.addEventListener(
-    'click',
+    "click",
     () => {
       document.body.removeChild(contextMenu);
     },
@@ -266,7 +298,8 @@ let animationInterval = null;
 
 function playAnimation() {
   if (savedFrames.length === 0) return;
-  document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
+  document.getElementById("play-animation").innerText =
+    translations[userLang].stop_animation;
   currentFrameIndex = 0;
   const interval = 1000 / fps;
   animationInterval = setInterval(() => {
@@ -278,7 +311,8 @@ function playAnimation() {
 function stopAnimation() {
   clearInterval(animationInterval);
   animationInterval = null;
-  document.getElementById('play-animation').innerText = translations[userLang].play_animation;
+  document.getElementById("play-animation").innerText =
+    translations[userLang].play_animation;
 }
 
 /*============ СОХРАНЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
@@ -295,17 +329,17 @@ function saveStateToFile() {
     totalMemory,
   };
   const jsonState = JSON.stringify(state, null, 2);
-  const blob = new Blob([jsonState], { type: 'application/json' });
+  const blob = new Blob([jsonState], { type: "application/json" });
   const now = new Date();
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
   const year = now.getFullYear();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
   const formattedDate = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = `saved_state_${formattedDate}.json`;
   document.body.appendChild(a);
@@ -320,15 +354,16 @@ function loadStateFromFile(file) {
       const state = JSON.parse(event.target.result);
 
       // Check the version and load accordingly
-      if (state.version === '0.18.0') {
+      if (state.version === "0.18.0") {
         // New format: load displayAnimations and currentConfig
         displayAnimations = state.displayAnimations;
         currentConfig = state.currentConfig;
         cellAnimations = displayAnimations[currentConfig];
       } else {
         // Old format: load cellAnimations for the current display
-        const [cols, rows] = currentConfig.split('x').map(Number);
-        displayAnimations[currentConfig] = state.cellAnimations || Array.from({ length: rows * cols }, () => []);
+        const [cols, rows] = currentConfig.split("x").map(Number);
+        displayAnimations[currentConfig] =
+          state.cellAnimations || Array.from({ length: rows * cols }, () => []);
         cellAnimations = displayAnimations[currentConfig];
       }
 
@@ -345,7 +380,7 @@ function loadStateFromFile(file) {
       generateOutput();
       startAllCellsAnimations();
     } catch {
-      showErrorAlert('error_load_json');
+      showErrorAlert("error_load_json");
     }
   };
   reader.readAsText(file);
@@ -355,13 +390,13 @@ function loadStateFromFile(file) {
 function showConfirmationAlert(message, callback) {
   Swal.fire({
     title: translations[userLang][message],
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
     confirmButtonText: translations[userLang].yes,
     cancelButtonText: translations[userLang].no,
-  }).then(result => {
+  }).then((result) => {
     if (result.isConfirmed) {
       callback();
     }
@@ -372,19 +407,19 @@ function showErrorAlert(message) {
   Swal.fire({
     title: translations[userLang].error,
     text: translations[userLang][message],
-    icon: 'error',
+    icon: "error",
     confirmButtonText: translations[userLang].ok,
-    confirmButtonColor: '#3085d6',
+    confirmButtonColor: "#3085d6",
   });
 }
 
 function showSoonAlert(message, callback) {
   Swal.fire({
     title: translations[userLang].soon_message,
-    icon: 'info',
+    icon: "info",
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
     confirmButtonText: translations[userLang].yes,
     cancelButtonText: translations[userLang].no,
   });
@@ -396,79 +431,102 @@ function showSoonAlert(message, callback) {
 $(document).ready(function () {
   applyTranslations();
   clear();
-  $('#clear').click(function () {
-    showConfirmationAlert('confirm_clear', clear);
+  $("#clear").click(function () {
+    showConfirmationAlert("confirm_clear", clear);
   });
-  $('#invert').click(invert);
-  $('#reflectHorizontal').click(reflectHorizontal);
-  $('#reflectVertical').click(reflectVertical);
-  $('.pixel').click(function () {
+  $("#invert").click(invert);
+  $("#reflectHorizontal").click(reflectHorizontal);
+  $("#reflectVertical").click(reflectVertical);
+  $(".pixel").click(function () {
     togglePixel(this);
     generateOutput();
   });
-  $('#play-animation').click(function () {
+  $("#play-animation").click(function () {
     if (animationInterval) stopAnimation();
     else playAnimation();
   });
-  $('#save-frame').click(saveFrame);
-  $('#customCharacterLink').click(function () {
-    $('#tab-pixel').show();
-    $('#tab-code').hide();
-    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link active');
-    document.getElementById('arduinoCodeLink').removeAttribute('class', 'active');
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link');
+  $("#save-frame").click(saveFrame);
+  $("#customCharacterLink").click(function () {
+    $("#tab-pixel").show();
+    $("#tab-code").hide();
+    document
+      .getElementById("customCharacterLink")
+      .setAttribute("class", "nav-link active");
+    document
+      .getElementById("arduinoCodeLink")
+      .removeAttribute("class", "active");
+    document
+      .getElementById("arduinoCodeLink")
+      .setAttribute("class", "nav-link");
   });
-  $('#arduinoCodeLink').click(function () {
-    $('#tab-code').show();
-    $('#tab-pixel').hide();
-    document.getElementById('customCharacterLink').removeAttribute('class', 'active');
-    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link');
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link active');
+  $("#arduinoCodeLink").click(function () {
+    $("#tab-code").show();
+    $("#tab-pixel").hide();
+    document
+      .getElementById("customCharacterLink")
+      .removeAttribute("class", "active");
+    document
+      .getElementById("customCharacterLink")
+      .setAttribute("class", "nav-link");
+    document
+      .getElementById("arduinoCodeLink")
+      .setAttribute("class", "nav-link active");
   });
-  $('.dropdown-item[data-lang]').click(function (e) {
+  $(".dropdown-item[data-lang]").click(function (e) {
     e.preventDefault();
-    userLang = $(this).data('lang');
+    userLang = $(this).data("lang");
     applyTranslations();
   });
 });
 
-document.getElementById('toggle-pdf-button').addEventListener('click', function () {
-  const pdfPanel = document.getElementById('pdf-panel');
-  const pdfBut = document.getElementById('toggle-pdf-button');
-  if (pdfBut.hasAttribute('data-status')) {
-    pdfBut.removeAttribute('data-status');
-    pdfPanel.classList.remove('open');
-    pdfBut.classList.remove('open');
-    pdfBut.innerText = translations[userLang].symbols_table;
-  } else {
-    pdfBut.setAttribute('data-status', 'active');
-    pdfPanel.classList.add('open');
-    pdfBut.classList.add('open');
-    pdfBut.innerText = translations[userLang].close;
-  }
-});
-
-document.getElementById('pdf-select').addEventListener('change', function () {
-  const selectedPdf = this.value;
-  document.getElementById('pdf-viewer').src = selectedPdf;
-});
-
-document.getElementById('save-state').addEventListener('click', saveStateToFile);
-document.getElementById('load-state-btn').addEventListener('click', function () {
-  document.getElementById('load-state').click();
-});
-document.getElementById('load-state').addEventListener('change', function (event) {
-  const file = event.target.files[0];
-  if (file) {
-    try {
-      loadStateFromFile(file);
-    } catch {
-      showErrorAlert('error_load');
+document
+  .getElementById("toggle-pdf-button")
+  .addEventListener("click", function () {
+    const pdfPanel = document.getElementById("pdf-panel");
+    const pdfBut = document.getElementById("toggle-pdf-button");
+    if (pdfBut.hasAttribute("data-status")) {
+      pdfBut.removeAttribute("data-status");
+      pdfPanel.classList.remove("open");
+      pdfBut.classList.remove("open");
+      pdfBut.innerText = translations[userLang].symbols_table;
+    } else {
+      pdfBut.setAttribute("data-status", "active");
+      pdfPanel.classList.add("open");
+      pdfBut.classList.add("open");
+      pdfBut.innerText = translations[userLang].close;
     }
-  }
+  });
+
+document.getElementById("pdf-select").addEventListener("change", function () {
+  const selectedPdf = this.value;
+  document.getElementById("pdf-viewer").src = selectedPdf;
 });
-document.getElementById('theme-toggle').addEventListener('click', function () {
-  document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+
+document
+  .getElementById("save-state")
+  .addEventListener("click", saveStateToFile);
+document
+  .getElementById("load-state-btn")
+  .addEventListener("click", function () {
+    document.getElementById("load-state").click();
+  });
+document
+  .getElementById("load-state")
+  .addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        loadStateFromFile(file);
+      } catch {
+        showErrorAlert("error_load");
+      }
+    }
+  });
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  document.body.setAttribute(
+    "data-theme",
+    document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"
+  );
 });
 
 async function copyToClipboard(elementId) {
@@ -476,37 +534,42 @@ async function copyToClipboard(elementId) {
     const textarea = document.getElementById(elementId);
     await navigator.clipboard.writeText(textarea.value);
     Swal.fire({
-      icon: 'success',
-      title: 'Успех!',
-      text: 'Текст скопирован в буфер обмена',
+      icon: "success",
+      title: "Успех!",
+      text: "Текст скопирован в буфер обмена",
       timer: 2000,
       showConfirmButton: false,
     });
   } catch (err) {
     Swal.fire({
-      icon: 'error',
-      title: 'Ошибка',
-      text: 'Не удалось скопировать текст',
+      icon: "error",
+      title: "Ошибка",
+      text: "Не удалось скопировать текст",
     });
   }
 }
 
 /*============ УПРАВЛЕНИЕ ПРЕЛОАДЕРОМ ============*/
-document.addEventListener('DOMContentLoaded', () => {
-  const preloader = document.getElementById('preloader');
-  preloader.classList.add('hidden');
+document.addEventListener("DOMContentLoaded", () => {
+  const preloader = document.getElementById("preloader");
+  preloader.classList.add("hidden");
   setTimeout(() => {
-    preloader.style.display = 'none';
+    preloader.style.display = "none";
   }, 500);
 });
 
 // Инициализация дисплея при загрузке
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
+  generatePixelGrid(8, 5);
+
   currentConfig = lcdSelect.value; // Например, "16x2"
-  const [cols, rows] = currentConfig.split('x').map(Number);
+  const [cols, rows] = currentConfig.split("x").map(Number);
 
   // Инициализируем анимации для начальной конфигурации
-  displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
+  displayAnimations[currentConfig] = Array.from(
+    { length: rows * cols },
+    () => []
+  );
   cellAnimations = displayAnimations[currentConfig];
 
   createLcdCells(rows, cols);

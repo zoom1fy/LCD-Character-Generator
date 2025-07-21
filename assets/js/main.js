@@ -251,40 +251,113 @@ function duplicateFrame(index) {
 }
 
 function showContextMenu(event, index) {
+  // Закрываем предыдущее меню, если оно есть
+  const existingMenu = document.querySelector(".context-menu");
+  if (existingMenu) document.body.removeChild(existingMenu);
+
+  // Создаем контекстное меню
   const contextMenu = document.createElement("div");
   contextMenu.className = "context-menu";
-  contextMenu.style.position = "absolute";
-  contextMenu.style.left = `${event.pageX}px`;
-  contextMenu.style.top = `${event.pageY}px`;
-  contextMenu.style.backgroundColor = "#fff";
-  contextMenu.style.border = "1px solid #ccc";
-  contextMenu.style.padding = "10px";
-  contextMenu.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.1)";
-  contextMenu.style.zIndex = 1000;
-  const duplicateItem = document.createElement("div");
-  duplicateItem.innerText = translations[userLang].duplicate;
-  duplicateItem.style.cursor = "pointer";
-  duplicateItem.addEventListener("click", () => {
-    duplicateFrame(index);
-    document.body.removeChild(contextMenu);
-  });
-  const deleteItem = document.createElement("div");
-  deleteItem.innerText = translations[userLang].delete;
-  deleteItem.style.cursor = "pointer";
-  deleteItem.addEventListener("click", () => {
-    deleteFrame(index);
-    document.body.removeChild(contextMenu);
-  });
-  contextMenu.appendChild(duplicateItem);
-  contextMenu.appendChild(deleteItem);
-  document.body.appendChild(contextMenu);
-  document.addEventListener(
-    "click",
-    () => {
-      document.body.removeChild(contextMenu);
+  contextMenu.style.position = "fixed";
+  contextMenu.style.left = `${event.clientX}px`;
+  contextMenu.style.top = `${event.clientY}px`;
+  contextMenu.style.minWidth = "180px";
+  contextMenu.style.backgroundColor = "#ffffff";
+  contextMenu.style.borderRadius = "6px";
+  contextMenu.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.15)";
+  contextMenu.style.zIndex = "1000";
+  contextMenu.style.overflow = "hidden";
+  contextMenu.style.fontFamily = "'Segoe UI', Arial, sans-serif";
+  contextMenu.style.fontSize = "14px";
+  contextMenu.style.userSelect = "none";
+
+  // Создаем пункты меню
+  const menuItems = [
+    {
+      text: translations[userLang].duplicate,
+      action: () => duplicateFrame(index),
     },
-    { once: true }
-  );
+    {
+      text: translations[userLang].delete,
+      action: () => deleteFrame(index),
+    },
+  ];
+
+  menuItems.forEach((item) => {
+    const menuItem = document.createElement("div");
+    menuItem.className = "context-menu-item";
+    menuItem.innerText = item.text;
+    menuItem.style.padding = "8px 16px";
+    menuItem.style.cursor = "pointer";
+    menuItem.style.transition = "background-color 0.2s";
+    menuItem.style.display = "flex";
+    menuItem.style.alignItems = "center";
+    menuItem.style.gap = "8px";
+
+    // Hover-эффект
+    menuItem.addEventListener("mouseenter", () => {
+      menuItem.style.backgroundColor = "#f5f5f5";
+    });
+    menuItem.addEventListener("mouseleave", () => {
+      menuItem.style.backgroundColor = "transparent";
+    });
+
+    // Добавляем иконки (можно заменить на свои)
+    const icon = document.createElement("div");
+    icon.style.width = "16px";
+    icon.style.height = "16px";
+    icon.style.backgroundSize = "contain";
+
+    if (item.text === translations[userLang].duplicate) {
+      icon.style.backgroundImage =
+        'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>\')';
+    } else {
+      icon.style.backgroundImage =
+        'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>\')';
+    }
+
+    menuItem.prepend(icon);
+    menuItem.addEventListener("click", () => {
+      item.action();
+      document.body.removeChild(contextMenu);
+    });
+
+    contextMenu.appendChild(menuItem);
+  });
+
+  // Добавляем разделитель
+  const divider = document.createElement("div");
+  divider.style.height = "1px";
+  divider.style.backgroundColor = "#eeeeee";
+  divider.style.margin = "4px 0";
+  contextMenu.insertBefore(divider, contextMenu.lastChild);
+
+  // Добавляем меню на страницу
+  document.body.appendChild(contextMenu);
+
+  // Закрытие при клике вне меню
+  const closeMenu = (e) => {
+    if (!contextMenu.contains(e.target)) {
+      document.body.removeChild(contextMenu);
+      document.removeEventListener("click", closeMenu);
+    }
+  };
+
+  document.addEventListener("click", closeMenu);
+
+  // Предотвращаем закрытие при клике внутри меню
+  contextMenu.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  // Корректировка позиции, если меню выходит за границы экрана
+  const rect = contextMenu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    contextMenu.style.left = `${window.innerWidth - rect.width - 5}px`;
+  }
+  if (rect.bottom > window.innerHeight) {
+    contextMenu.style.top = `${window.innerHeight - rect.height - 5}px`;
+  }
 }
 
 /*============ ВОСПРОИЗВЕДЕНИЕ АНИМАЦИИ ============*/

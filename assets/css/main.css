@@ -251,6 +251,7 @@ pre {
     flex-wrap: nowrap !important;
     overflow-x: auto;
     padding-bottom: 10px;
+    padding: 10px;
     justify-content: flex-start;
     width: 100%;
     scrollbar-width: thin;
@@ -270,6 +271,7 @@ pre {
     border-radius: 4px;
 }
 
+/* Плавный переход для обычных кадров */
 .saved-frame {
     width: 50px;
     height: 80px;
@@ -286,7 +288,27 @@ pre {
     font-weight: bold;
     color: #495057;
     margin-right: 10px;
+    transition: transform 0.3s ease;
+    /* Плавный переход для ховера */
 }
+
+.saved-frame:hover {
+    transform: scale(1.1);
+    z-index: 20;
+}
+
+/* Добавляем стили для перетаскиваемого элемента */
+.dragging {
+  position: absolute;
+  pointer-events: none;
+  /* сначала без поворота */
+  transform: rotate(0deg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0.8;
+  z-index: 1000;
+}
+
 
 .controls {
     padding: 10px;
@@ -500,11 +522,6 @@ footer {
         justify-content: flex-start;
         padding-bottom: 10px;
         width: 100%;
-    }
-
-    .saved-frame {
-        display: inline-flex !important;
-        margin-right: 10px;
     }
 
     .controls {

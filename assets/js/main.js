@@ -51,6 +51,7 @@ let currentCellIndex = 0;
 let cellAnimations = Array.from({ length: 32 }, () => []);
 let displayAnimations = {}; // Объект для хранения анимаций по конфигурациям
 let currentConfig; // Текущая конфигурация дисплея (например, "16x2")
+let draggedElement = null;
 
 const memoryPerChar = 40;
 const totalMemory = 320;

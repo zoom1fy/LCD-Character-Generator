@@ -1,19 +1,102 @@
-/* Всю вкладку делаем флекс-контейнером */
+/* ==========================================================================
+   Стили для вкладки Arduino Code
+   ========================================================================== */
 #tab-code {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 150px); /* подгоните под высоту вашей шапки/футера */
-  padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 200px);
+    /* Учитываем высоту футера (~120px) и навбара (~80px) */
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-/* Шапка и панель пинов остаются «фиксированными» по высоте, а код растягивается */
-#tab-code > h3,
+#tab-code>h3,
 #tab-code .row.mb-3,
-#tab-code > div[style*="display: flex"] {
-  flex: 0 0 auto;
+#tab-code .code-header {
+    flex: 0 0 auto;
 }
 
-/* Пре/код займут всё оставшееся пространство */
-#tab-code pre {
-  flex: 1 1 auto;
+#tab-code .code-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#tab-code pre.code-arduino {
+    flex: 1 1 auto;
+    margin: 0;
+    overflow-x: auto;
+    background: #f8f9fa;
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#tab-code pre.code-arduino code {
+    white-space: pre;
+}
+
+/* ==========================================================================
+   Стили для футера
+   ========================================================================== */
+footer {
+    margin-top: 20px;
+    padding: 20px 0;
+    position: relative;
+    z-index: 10;
+}
+
+/* ==========================================================================
+   Медиа-запросы для мобильных устройств
+   ========================================================================== */
+@media (max-width: 768px) {
+    #tab-code {
+        padding: 10px;
+        min-height: calc(100vh - 150px);
+        /* Уменьшаем для мобильных, учитывая футер */
+    }
+
+    #tab-code .row.mb-3 {
+        margin-bottom: 10px;
+    }
+
+    #tab-code .col-md-2 {
+        margin-bottom: 10px;
+    }
+
+    #tab-code .form-label {
+        font-size: 14px;
+    }
+
+    #tab-code .form-control {
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    #tab-code pre.code-arduino {
+        font-size: 12px;
+        padding: 10px;
+        line-height: 1.4;
+        min-height: 200px;
+        /* Минимальная высота для видимости */
+    }
+
+    #tab-code .code-header {
+        gap: 8px;
+    }
+
+    #tab-code .code-header h4 {
+        font-size: 16px;
+    }
+
+    #tab-code .code-header .btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
 }

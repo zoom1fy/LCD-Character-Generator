@@ -276,54 +276,35 @@
             </div>
 
             <!-- Arduino Code Tab -->
-            <div
-              class="tab-pane"
-              id="tab-code"
-              role="tabpanel"
-              style="
-                padding: 20px;
-                display: none;
-                flex-direction: column;
-                height: calc(100vh - 150px);
-              "
-            >
+            <div class="tab-pane" id="tab-code" role="tabpanel" style="display: none">
               <h3 data-i18n="arduino_code">Arduino Code</h3>
               <div class="row mb-3" style="flex: 0 0 auto">
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="RSPin" class="form-label">RS Pin</label>
                   <input type="number" id="RSPin" class="form-control" value="12" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="EnablePin" class="form-label">Enable Pin</label>
                   <input type="number" id="EnablePin" class="form-control" value="11" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="D4Pin" class="form-label">D4 Pin</label>
                   <input type="number" id="D4Pin" class="form-control" value="5" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="D5Pin" class="form-label">D5 Pin</label>
                   <input type="number" id="D5Pin" class="form-control" value="4" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="D6Pin" class="form-label">D6 Pin</label>
                   <input type="number" id="D6Pin" class="form-control" value="3" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                   <label for="D7Pin" class="form-label">D7 Pin</label>
                   <input type="number" id="D7Pin" class="form-control" value="2" />
                 </div>
               </div>
-
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-                  margin-bottom: 10px;
-                  flex: 0 0 auto;
-                "
-              >
+              <div class="code-header">
                 <h4 data-i18n="output">Вывод</h4>
                 <button
                   class="btn btn-sm btn-outline-secondary"
@@ -333,19 +314,9 @@
                   КОПИРОВАТЬ
                 </button>
               </div>
-              <pre
-                style="
-                  flex: 1;
-                  margin: 0;
-                  overflow: auto;
-                  background: #f8f9fa;
-                  padding: 15px;
-                  border: 1px solid #ced4da;
-                  border-radius: 0.25rem;
-                "
-              >
-              <code id="codeArduino" class="language-cpp"></code>
-            </pre>
+              <pre class="code-arduino">
+                <code id="codeArduino" class="language-cpp"></code>
+              </pre>
             </div>
           </div>
         </div>

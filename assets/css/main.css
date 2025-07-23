@@ -2,7 +2,6 @@
    Глобальные стили
    ========================================================================== */
 :root {
-    /* Светлая тема */
     --background-color: #f5f5f5;
     --text-color: black;
     --color-off: #5EFB6E;
@@ -70,7 +69,6 @@ body {
 
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css");
 
-
 /* ==========================================================================
    Основные элементы
    ========================================================================== */
@@ -102,7 +100,7 @@ pre {
     text-align: center !important;
 }
 
-.nav-link:hover{
+.nav-link:hover {
     cursor: pointer;
 }
 
@@ -135,7 +133,6 @@ pre {
     margin-bottom: 20px;
 }
 
-/* Уберите эти стили, если они есть */
 .dropdown-menu {
     display: none;
 }
@@ -203,7 +200,11 @@ pre {
 
 .animation-controls-container {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
     margin-bottom: 30px;
+    justify-content: center;
 }
 
 .output {
@@ -230,25 +231,43 @@ pre {
     background-color: var(--color-saved-frames-bg);
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--color-saved-frames-shadow);
-    width: 600px;
-    height: 100px;
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+    min-height: 120px;
     transition: 0.5s;
+    overflow-x: auto;
 }
 
 .saved-frames h3 {
     font-size: 18px;
     color: #495057;
     margin-bottom: 15px;
+    text-align: center;
 }
 
 .frames-container {
     display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    justify-content: flex-start;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-saved-frame-border) var(--color-saved-frames-bg);
+}
+
+.frames-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.frames-container::-webkit-scrollbar-track {
+    background: var(--color-saved-frames-bg);
+}
+
+.frames-container::-webkit-scrollbar-thumb {
+    background: var(--color-saved-frame-border);
+    border-radius: 4px;
 }
 
 .saved-frame {
@@ -258,7 +277,8 @@ pre {
     border-radius: 4px;
     background-color: var(--color-saved-frames-bg);
     cursor: pointer;
-    display: flex;
+    flex: 0 0 auto;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -269,20 +289,22 @@ pre {
 }
 
 .controls {
-    margin-top: 20px;
-    margin-left: 30px;
     padding: 10px;
     border: 1px solid var(--color-controls-border);
     background-color: var(--color-controls-bg);
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--color-controls-shadow);
-    width: 600px;
-    height: 100px;
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: 0.5s;
 }
 
 .fps-control {
-    margin-top: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -341,6 +363,7 @@ input[type="range"] {
 
 .lcd-row {
     display: flex;
+    flex-wrap: nowrap;
 }
 
 .lcd-cell {
@@ -444,4 +467,154 @@ option {
     font-size: 16px;
     background-color: var(--color-option-bg);
     color: var(--color-option-color);
+}
+
+footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+/* ==========================================================================
+   Медиа-запросы для мобильных устройств
+   ========================================================================== */
+@media (max-width: 768px) {
+    .animation-controls-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .saved-frames {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        padding: 10px;
+        min-height: 120px;
+    }
+
+    .frames-container {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 10px;
+        width: 100%;
+    }
+
+    .saved-frame {
+        display: inline-flex !important;
+        margin-right: 10px;
+    }
+
+    .controls {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-top: 20px;
+    }
+
+    .fps-control {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .fps-control label {
+        text-align: center;
+    }
+
+    input[type="range"] {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .lcd-display-container {
+        width: 100%;
+    }
+
+    .lcd-display {
+        width: 100%;
+        overflow-x: auto;
+        padding: 5px;
+    }
+
+    .lcd-row {
+        flex-wrap: nowrap;
+        min-width: fit-content;
+    }
+
+    .lcd-cell {
+        width: 30px;
+        height: 50px;
+        margin: 1px;
+    }
+
+    .lcd-cell.active {
+        border: 1px solid var(--color-lcd-cell-active-border);
+    }
+
+    .bookmark-button {
+        top: 200px;
+        left: -10px;
+        width: 120px;
+        font-size: 14px;
+    }
+
+    .bookmark-button.open {
+        left: 250px;
+    }
+
+    .bookmark-button.open:hover {
+        left: 245px;
+    }
+
+    .bookmark-button:hover {
+        left: -5px;
+    }
+
+    .pdf-panel {
+        width: 260px;
+    }
+
+    .pdf-panel.open {
+        left: 0;
+    }
+
+    select {
+        width: 100%;
+        max-width: 240px;
+    }
+
+    .btn-custom {
+        min-width: 140px;
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .container {
+        padding: 0 10px;
+    }
+
+    .row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .col-md-3 {
+        width: 100%;
+    }
+
+    #pixels {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    #code {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    #code textarea {
+        width: 100%;
+    }
 }

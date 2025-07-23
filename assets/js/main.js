@@ -1,4 +1,4 @@
-const PROJECT_VERSION = '0.18.0';
+const PROJECT_VERSION = '0.18.5';
 
 // Определение языка
 let userLang = (navigator.language || navigator.userLanguage).startsWith('ru') ? 'ru' : 'en';
@@ -393,6 +393,17 @@ function saveStateToFile() {
   document.body.removeChild(a);
 }
 
+function isVersionGte(version, target) {
+  const toNums = (v) => v.split('.').map(Number);
+  const [v1, v2] = [toNums(version), toNums(target)];
+
+  for (let i = 0; i < 3; i++) {
+    if ((v1[i] ?? 0) > (v2[i] ?? 0)) return true;
+    if ((v1[i] ?? 0) < (v2[i] ?? 0)) return false;
+  }
+  return true; // equal
+}
+
 function loadStateFromFile(file) {
   const reader = new FileReader();
   reader.onload = function (event) {
@@ -400,13 +411,13 @@ function loadStateFromFile(file) {
       const state = JSON.parse(event.target.result);
 
       // Check the version and load accordingly
-      if (state.version === '0.18.0') {
-        // New format: load displayAnimations and currentConfig
+      if (isVersionGte(state.version, '0.18.0')) {
+        // Загружаем новое состояние
         displayAnimations = state.displayAnimations;
         currentConfig = state.currentConfig;
         cellAnimations = displayAnimations[currentConfig];
       } else {
-        // Old format: load cellAnimations for the current display
+        // Старый формат
         const [cols, rows] = currentConfig.split('x').map(Number);
         displayAnimations[currentConfig] =
           state.cellAnimations || Array.from({ length: rows * cols }, () => []);

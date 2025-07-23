@@ -70,6 +70,7 @@ function switchCell(index) {
     currentCell.classList.remove('active');
     cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
     clearInterval(currentCell.dataset.animationFrame); // Останавливаем анимацию
+    generateOutput();
   }
 
   currentCellIndex = index;

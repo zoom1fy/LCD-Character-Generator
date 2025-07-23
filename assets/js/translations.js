@@ -42,7 +42,11 @@ const translations = {
     lang_en: 'English',
     lang_ru: 'Russian',
     loading: 'Loading...',
-    error_load_json: "Something went wrong with json. Maybe it's an old version?"
+    error_load_json: "Something went wrong with json. Maybe it's an old version?",
+    warning: 'Warning!',
+    pin_warning_0: 'Pin 0 is used for Serial. This may cause problems!',
+    pin_warning_1: 'Pin 1 is used for Serial. This may cause problems!',
+    noFrameMes: 'No frames saved for this cell.'
   },
   ru: {
     title: 'Генератор символов LCD',
@@ -86,6 +90,10 @@ const translations = {
     lang_en: 'English',
     lang_ru: 'Русский',
     loading: 'Загрузка...',
-    "error_load_json": 'Что-то пошло не так с json. Возможно это старая версия файла?'
+    error_load_json: 'Что-то пошло не так с json. Возможно это старая версия файла?',
+    warning: 'Внимание!',
+    pin_warning_0: 'Пин 0 используется для Serial. Это может вызвать проблемы!',
+    pin_warning_1: 'Пин 1 используется для Serial. Это может вызвать проблемы!',
+    noFrameMes: 'Для этой ячейки не сохранено ни одного кадра',
   },
 };

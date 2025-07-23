@@ -1,0 +1,19 @@
+/* Всю вкладку делаем флекс-контейнером */
+#tab-code {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 150px); /* подгоните под высоту вашей шапки/футера */
+  padding: 20px;
+}
+
+/* Шапка и панель пинов остаются «фиксированными» по высоте, а код растягивается */
+#tab-code > h3,
+#tab-code .row.mb-3,
+#tab-code > div[style*="display: flex"] {
+  flex: 0 0 auto;
+}
+
+/* Пре/код займут всё оставшееся пространство */
+#tab-code pre {
+  flex: 1 1 auto;
+}

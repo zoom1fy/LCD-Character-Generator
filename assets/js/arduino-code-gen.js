@@ -23,12 +23,13 @@ function generateOutput() {
     return;
   }
 
-  // Генерация определений пользовательских символов (до 8 кадров)
+  // Генерация определений пользовательских символов и констант (до 8 кадров)
   let customCharsDefs = '';
+  let constDefs = '';
   frames.slice(0, 8).forEach((frame, i) => {
-    // Ограничиваем 8 символами
     const bytes = frame.map((row) => `0b${row.join('')}`);
     customCharsDefs += `byte customChar${i}[8] = {\n  ${bytes.join(',\n  ')}\n};\n\n`;
+    constDefs += `const char FRAME${i} = ${i};\n`;
   });
 
   // Получение размеров LCD из текущей конфигурации
@@ -53,12 +54,13 @@ function generateOutput() {
 
 LiquidCrystal lcd(${rs}, ${en}, ${d4}, ${d5}, ${d6}, ${d7});
 
+${constDefs}
 ${customCharsDefs}
 void setup() {
   lcd.begin(${cols}, ${rows});
   ${frames
     .slice(0, 8)
-    .map((_, i) => `lcd.createChar(${i}, customChar${i});`)
+    .map((_, i) => `lcd.createChar(FRAME${i}, customChar${i});`)
     .join('\n  ')}
 }
 
@@ -68,7 +70,7 @@ const int delayMs = 1000 / ${fps};
 
 void loop() {
   lcd.setCursor(${colPos}, ${rowPos});
-  lcd.write((uint8_t)frameIndex);
+  lcd.write(FRAME${frames.length > 1 ? 'frameIndex' : '0'});
   frameIndex = (frameIndex + 1) % numFrames;
   delay(delayMs);
 }`;

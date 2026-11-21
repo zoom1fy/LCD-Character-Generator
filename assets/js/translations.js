@@ -47,7 +47,12 @@ const translations = {
     no_animation_comment: '// No animation for this cell',
     success: 'Success!',
     copy_success: 'Text copied to clipboard',
-    copy_error: 'Failed to copy text'
+    copy_error: 'Failed to copy text',
+    edit: 'Edit',
+    editing_frame: 'Editing frame {0}',
+    editing_hint: 'Pixel changes are saved to this frame automatically',
+    done_editing: 'Done',
+    no_frames: 'No frames yet. Draw a character and click "Save Frame".'
   },
   ru: {
     title: 'Генератор символов LCD',
@@ -97,5 +102,10 @@ const translations = {
     success: 'Успешно!',
     copy_success: 'Текст скопирован в буфер обмена',
     copy_error: 'Не удалось скопировать текст',
+    edit: 'Редактировать',
+    editing_frame: 'Редактирование кадра {0}',
+    editing_hint: 'Изменения пикселей автоматически сохраняются в этот кадр',
+    done_editing: 'Готово',
+    no_frames: 'Кадров пока нет. Нарисуйте символ и нажмите «Сохранить кадр».',
   },
 };

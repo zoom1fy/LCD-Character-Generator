@@ -220,6 +220,16 @@
                           Оставшаяся память: 320 байт
                         </span>
                       </div>
+                      <!-- Статус редактирования кадра -->
+                      <div id="editing-status" class="editing-status" hidden>
+                        <i class="bi bi-pencil-square editing-status-icon"></i>
+                        <span id="editing-frame-label" data-i18n="editing_frame"></span>
+                        <span class="editing-status-hint" data-i18n="editing_hint"></span>
+                        <button id="stop-editing-btn" class="btn btn-sm btn-outline-primary">
+                          <i class="bi bi-check-lg"></i>
+                          <span data-i18n="done_editing"></span>
+                        </button>
+                      </div>
                       <div class="frames-container">
                         <!-- Frames will be dynamically added here -->
                       </div>

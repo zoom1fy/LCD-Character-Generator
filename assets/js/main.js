@@ -30,6 +30,11 @@ function applyTranslations() {
     const key = element.getAttribute('data-i18n');
     if (key === 'remaining_memory') {
       element.innerText = translations[userLang][key].replace('{0}', remainingMemory);
+    } else if (key === 'editing_frame') {
+      element.innerText = translations[userLang].editing_frame.replace(
+        '{0}',
+        editingFrameIndex === null ? '' : editingFrameIndex + 1
+      );
     } else {
       element.innerText = translations[userLang][key];
     }
@@ -61,6 +66,8 @@ document.querySelectorAll('.dropdown-item[data-lang]').forEach((item) => {
 
     // Перегенерируем вывод
     generateOutput();
+    // Перерисовываем динамические подписи (список кадров) на новом языке
+    renderSavedFrames();
 
     // Закрываем дропдаун после выбора
     const toggle = item.closest('.dropdown').querySelector('.dropdown-toggle');
@@ -127,7 +134,7 @@ document.getElementById('fps').addEventListener('input', (event) => {
 function clear() {
   customchar.forEach((row) => row.fill(0));
   $('.pixel').removeClass('on').addClass('off');
-  generateOutput();
+  onEditorContentChanged();
   calculateMemoryUsage();
 }
 
@@ -150,27 +157,32 @@ function updateAllPixels() {
 }
 
 /*============ ТРАНСФОРМАЦИИ И ИНВЕРСИЯ ============*/
+// Трансформации идут через onEditorContentChanged
 function invert() {
   customchar = customchar.map((row) => row.map((val) => 1 - val));
   updateAllPixels();
-  generateOutput();
+  onEditorContentChanged();
 }
 
 function reflectHorizontal() {
   customchar = customchar.map((row) => row.reverse());
   updateAllPixels();
-  generateOutput();
+  onEditorContentChanged();
 }
 
 function reflectVertical() {
   customchar = customchar.reverse();
   updateAllPixels();
-  generateOutput();
+  onEditorContentChanged();
 }
 
 /*============ СОХРАНЕНИЕ И РЕНДЕРИНГ КАДРОВ ============*/
 let savedFrames = [];
 let currentFrameIndex = -1;
+// Индекс кадра, который сейчас редактируется в пиксель-редакторе (null — режим выключен)
+let editingFrameIndex = null;
+
+const framesContainerEl = document.querySelector('#savedFrames .frames-container');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -192,53 +204,127 @@ function saveFrame() {
   }
 }
 
+/* Рисует кадр на канвасе миниатюры в цветах текущей темы */
+function drawFrameToCanvas(canvas, frame) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const onColor = getTheme() === 'dark' ? '#e0e0e0' : '#000';
+  const offColor = getTheme() === 'dark' ? '#494949' : '#FFF';
+  frame.forEach((row, i) => {
+    row.forEach((val, j) => {
+      ctx.fillStyle = val ? onColor : offColor;
+      ctx.fillRect(j * 10, i * 10, 10, 10);
+    });
+  });
+}
+
 function renderSavedFrames() {
   // Очищаем только контейнер кадров, не трогая заголовок
-  const framesContainer = document.querySelector('#savedFrames .frames-container');
-  framesContainer.innerHTML = '';
+  framesContainerEl.innerHTML = '';
+
+  if (savedFrames.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'frames-empty';
+    empty.innerText = translations[userLang].no_frames;
+    framesContainerEl.appendChild(empty);
+    return;
+  }
+
   savedFrames.forEach((frame, index) => {
+    // Обёртка — кликабельный элемент, канвас — только картинка
+    const wrapper = document.createElement('div');
+    wrapper.className = 'frame-wrapper';
+    if (index === editingFrameIndex) {
+      wrapper.classList.add('editing');
+    }
+    wrapper.dataset.index = index;
+
     const canvas = document.createElement('canvas');
     canvas.width = 50;
     canvas.height = 80;
     canvas.className = 'saved-frame';
-    canvas.addEventListener('click', () => loadFrame(frame));
-    canvas.draggable = true;
-    canvas.dataset.index = index;
-    canvas.addEventListener('contextmenu', (event) => {
+    drawFrameToCanvas(canvas, frame);
+
+    wrapper.appendChild(canvas);
+
+    // Клик по кадру — вход в режим редактирования (повторный клик — выход)
+    wrapper.addEventListener('click', () => toggleEditFrame(index));
+    wrapper.addEventListener('contextmenu', (event) => {
       event.preventDefault();
       showContextMenu(event, index);
     });
-    canvas.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', index);
-    });
-    canvas.addEventListener('dragover', (event) => {
-      event.preventDefault();
-    });
-    canvas.addEventListener('drop', (event) => {
-      event.preventDefault();
-      const draggedIndex = event.dataTransfer.getData('text/plain');
-      const targetIndex = canvas.dataset.index;
-      [savedFrames[draggedIndex], savedFrames[targetIndex]] = [
-        savedFrames[targetIndex],
-        savedFrames[draggedIndex],
-      ];
-      syncCurrentCellFrames();
-      renderSavedFrames();
-      calculateMemoryUsage();
-    });
-    const ctx = canvas.getContext('2d');
-    frame.forEach((row, i) => {
-      row.forEach((val, j) => {
-        ctx.fillStyle = val ? '#000' : '#FFF';
-        ctx.fillRect(j * 10, i * 10, 10, 10);
-      });
-    });
-    framesContainer.appendChild(canvas);
+
+    framesContainerEl.appendChild(wrapper);
   });
+}
+
+/*============ РЕДАКТИРОВАНИЕ СОХРАНЁННЫХ КАДРОВ ============*/
+function updateEditingStatus() {
+  const statusEl = document.getElementById('editing-status');
+  const labelEl = document.getElementById('editing-frame-label');
+  if (editingFrameIndex === null) {
+    statusEl.hidden = true;
+  } else {
+    labelEl.innerText = translations[userLang].editing_frame.replace(
+      '{0}',
+      editingFrameIndex + 1
+    );
+    statusEl.hidden = false;
+  }
+}
+
+function startEditingFrame(index) {
+  if (animationInterval) {
+    stopAnimation();
+  }
+  editingFrameIndex = index;
+  loadFrame(savedFrames[index]);
+  updateEditingStatus();
+  renderSavedFrames();
+}
+
+function stopEditingFrame() {
+  if (editingFrameIndex === null) return;
+  editingFrameIndex = null;
+  updateEditingStatus();
+  renderSavedFrames();
+}
+
+function toggleEditFrame(index) {
+  if (editingFrameIndex === index) {
+    stopEditingFrame();
+  } else {
+    startEditingFrame(index);
+  }
+}
+
+// Применяет текущее содержимое пиксель-редактора к редактируемому кадру
+function commitEditorToFrame() {
+  if (editingFrameIndex === null || editingFrameIndex >= savedFrames.length) return;
+  savedFrames[editingFrameIndex] = clone(customchar);
+  syncCurrentCellFrames();
+  renderSavedFrames();
+}
+
+// Единая точка после любых изменений пикселей: обновляет кадр и вывод кода
+function onEditorContentChanged() {
+  if (editingFrameIndex !== null) {
+    commitEditorToFrame();
+  }
+  generateOutput();
 }
 
 function deleteFrame(index) {
   savedFrames.splice(index, 1);
+  // Корректируем режим редактирования под новое расположение кадров
+  if (editingFrameIndex !== null) {
+    if (editingFrameIndex === index) {
+      stopEditingFrame();
+    } else if (index < editingFrameIndex) {
+      editingFrameIndex--;
+      updateEditingStatus();
+    }
+  }
   syncCurrentCellFrames();
   if (savedFrames.length === 0) {
     stopCellAnimation(currentCellIndex);
@@ -251,6 +337,11 @@ function duplicateFrame(index) {
   if (savedFrames.length * memoryPerChar < totalMemory) {
     const frame = savedFrames[index];
     savedFrames.splice(index, 0, clone(frame));
+    // Дубликат вставляется до редактируемого кадра — сдвигаем его индекс
+    if (editingFrameIndex !== null && index <= editingFrameIndex) {
+      editingFrameIndex++;
+      updateEditingStatus();
+    }
     syncCurrentCellFrames();
     renderSavedFrames();
     calculateMemoryUsage();
@@ -263,6 +354,7 @@ function duplicateFrame(index) {
 function getContextMenuIcons() {
   const fill = getTheme() === 'dark' ? '%23e0e0e0' : '%23444444';
   return {
+    edit: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
     duplicate: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
     delete: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
   };
@@ -283,6 +375,11 @@ function showContextMenu(event, index) {
 
   // Создаем пункты меню
   const menuItems = [
+    {
+      text: translations[userLang].edit,
+      icon: menuIcons.edit,
+      action: () => startEditingFrame(index),
+    },
     {
       text: translations[userLang].duplicate,
       icon: menuIcons.duplicate,
@@ -357,6 +454,8 @@ let animationInterval = null;
 
 function playAnimation() {
   if (savedFrames.length === 0) return;
+  // Просмотр анимации и редактирование кадра несовместимы
+  stopEditingFrame();
   document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
   currentFrameIndex = 0;
   const interval = 1000 / fps;
@@ -523,7 +622,7 @@ $(document).ready(function () {
   $('#reflectVertical').click(reflectVertical);
   $('.pixel').click(function () {
     togglePixel(this);
-    generateOutput();
+    onEditorContentChanged();
   });
   $('#play-animation').click(function () {
     if (animationInterval) stopAnimation();
@@ -585,6 +684,18 @@ document.getElementById('load-state').addEventListener('change', function (event
 });
 document.getElementById('theme-toggle').addEventListener('click', function () {
   applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+  // Перерисовываем миниатюры кадров в цветах новой темы
+  renderSavedFrames();
+});
+
+/*============ СОБЫТИЯ КАДРОВ И РЕДАКТИРОВАНИЯ ============*/
+document.getElementById('stop-editing-btn').addEventListener('click', stopEditingFrame);
+
+// Esc — быстрый выход из режима редактирования кадра
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    stopEditingFrame();
+  }
 });
 
 async function copyToClipboard(elementId) {

@@ -380,30 +380,88 @@ pre {
     border-radius: 4px;
 }
 
-/* Плавный переход для обычных кадров */
 .saved-frame {
     width: 50px;
     height: 80px;
     border: 1px solid var(--color-saved-frame-border);
     border-radius: 4px;
     background-color: var(--color-saved-frames-bg);
-    cursor: pointer;
-    flex: 0 0 auto;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--color-secondary-text);
-    margin-right: 10px;
-    transition: transform 0.3s ease;
-    /* Плавный переход для ховера */
+    display: block;
 }
 
-.saved-frame:hover {
-    transform: scale(1.1);
+/* Обёртка кадра: кликабельный элемент с миниатюрой */
+.frame-wrapper {
+    position: relative;
+    flex: 0 0 auto;
+    margin-right: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.frame-wrapper:hover {
+    transform: scale(1.08);
     z-index: 20;
+}
+
+/* Кадр, который сейчас редактируется в пиксель-редакторе */
+.frame-wrapper.editing {
+    outline: 2px solid var(--color-btn-primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 10px var(--color-btn-focus);
+    z-index: 10;
+}
+
+/* Заглушка, когда кадров ещё нет */
+.frames-empty {
+    width: 100%;
+    padding: 18px 10px;
+    font-size: 13px;
+    color: var(--color-secondary-text);
+    text-align: center;
+    user-select: none;
+}
+
+/* Статус-бар режима редактирования кадра */
+.editing-status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--color-btn-primary);
+    border-radius: 6px;
+    background-color: rgba(0, 123, 255, 0.08);
+    transition: 0.5s;
+}
+
+.editing-status[hidden] {
+    display: none;
+}
+
+.editing-status-icon {
+    color: var(--color-btn-primary);
+    font-size: 16px;
+}
+
+#editing-frame-label {
+    font-weight: bold;
+    color: var(--color-btn-primary);
+    white-space: nowrap;
+}
+
+.editing-status-hint {
+    flex: 1;
+    min-width: 180px;
+    font-size: 12px;
+    font-weight: normal;
+    color: var(--color-secondary-text);
+}
+
+#stop-editing-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .controls {

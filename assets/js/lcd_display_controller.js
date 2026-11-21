@@ -77,6 +77,9 @@ function switchCell(index) {
     stopAnimation();
   }
 
+  // Редактируемый кадр принадлежит старой ячейке — выходим из режима
+  stopEditingFrame();
+
   if (currentCell !== null) {
     currentCell.classList.remove('active');
     syncCurrentCellFrames();

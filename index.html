@@ -131,109 +131,121 @@
           <div class="tab-content">
             <!-- Custom Character Tab -->
             <div class="tab-pane fade show active" id="tab-pixel" role="tabpanel">
-              <div class="container workspace">
-                <div class="row workspace-row">
-                  <!-- Заглушка под будущую таблицу символов -->
-                  <div class="col-md-3"></div>
+              <div class="workspace">
+                <!-- Верхний ряд: редактор | живой предпросмотр | код -->
+                <div class="workspace-main">
+                  <!-- Пиксель-редактор -->
+                  <section id="pixels" class="panel">
+                    <h2 data-i18n="pixels">Pixels</h2>
+                    <div id="pixel-grid"></div>
+                    <div class="butContainer">
+                      <button
+                        id="clear"
+                        class="btn btn-danger btn-custom"
+                        type="button"
+                        data-i18n="clear"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        id="invert"
+                        class="btn btn-warning btn-custom"
+                        type="button"
+                        data-i18n="invert"
+                      >
+                        Invert
+                      </button>
+                      <button
+                        id="reflectHorizontal"
+                        class="btn btn-primary btn-custom"
+                        type="button"
+                        data-i18n="reflect_horizontal"
+                      >
+                        Reflect Horizontal
+                      </button>
+                      <button
+                        id="reflectVertical"
+                        class="btn btn-primary btn-custom"
+                        type="button"
+                        data-i18n="reflect_vertical"
+                      >
+                        Reflect Vertical
+                      </button>
+                    </div>
+                  </section>
 
-                  <div class="col-md-3">
-                    <div id="pixels">
-                      <h2 data-i18n="pixels">Pixels</h2>
-                      <div id="pixel-grid"></div>
-                      <br />
-                      <div class="butContainer">
-                        <button
-                          id="clear"
-                          class="btn btn-danger btn-custom"
-                          type="button"
-                          data-i18n="clear"
-                        >
-                          Clear
-                        </button>
-                        <button
-                          id="invert"
-                          class="btn btn-warning btn-custom"
-                          type="button"
-                          data-i18n="invert"
-                        >
-                          Invert
-                        </button>
+                  <!-- Живой предпросмотр на LCD -->
+                  <section id="lcd-panel" class="panel">
+                    <div class="lcd-panel-header">
+                      <h3 data-i18n="preview">LCD Preview</h3>
+                      <select id="lcd-select">
+                        <option value="16x2">16x2</option>
+                        <option value="20x4">20x4</option>
+                      </select>
+                    </div>
+                    <div id="lcd-display" class="lcd-display">
+                      <!-- Ячейки динамически создаются в JS -->
+                    </div>
+                  </section>
+
+                  <!-- Вывод кода -->
+                  <section id="code" class="panel">
+                    <div class="code-header">
+                      <h3 data-i18n="output">Вывод</h3>
+                      <button
+                        id="copy-char-btn"
+                        class="btn btn-sm btn-outline-secondary btn-copy"
+                        data-i18n="copy"
+                      >
+                        КОПИРОВАТЬ
+                      </button>
+                    </div>
+                    <textarea
+                      class="form-control output"
+                      id="codeChar"
+                      cols="30"
+                      rows="10"
+                      readonly
+                    ></textarea>
+                  </section>
+                </div>
+
+                <!-- Нижний ряд: кадры и управление анимацией -->
+                <div class="animation-controls">
+                  <div class="animation-controls-container">
+                    <div class="saved-frames" id="savedFrames">
+                      <div class="saved-frames-header">
+                        <h3 data-i18n="saved_frames"></h3>
+                        <span id="memory-status" data-i18n="remaining_memory">
+                          Оставшаяся память: 320 байт
+                        </span>
                       </div>
-                      <div class="butContainer">
-                        <button
-                          id="reflectHorizontal"
-                          class="btn btn-primary btn-custom"
-                          type="button"
-                          data-i18n="reflect_horizontal"
-                        >
-                          Reflect Horizontal
-                        </button>
-                        <button
-                          id="reflectVertical"
-                          class="btn btn-primary btn-custom"
-                          type="button"
-                          data-i18n="reflect_vertical"
-                        >
-                          Reflect Vertical
-                        </button>
+                      <div class="frames-container">
+                        <!-- Frames will be dynamically added here -->
                       </div>
                     </div>
-                  </div>
-
-                  <!-- Code tab -->
-                  <div class="col-md-3">
-                    <div id="code">
-                      <div class="code-header">
-                        <h3 data-i18n="output">Вывод</h3>
+                    <!-- Animation Controls -->
+                    <div class="controls">
+                      <div class="fps-control">
+                        <label for="fps" data-i18n="animation_fps">Animation FPS:</label>
+                        <input type="range" id="fps" min="1" max="24" value="2" />
+                        <span id="fpsValue">2</span> FPS
+                      </div>
+                      <div class="animation-buttons">
+                        <button id="save-frame" class="btn btn-success" data-i18n="save_frame">
+                          Save Frame
+                        </button>
                         <button
-                          id="copy-char-btn"
-                          class="btn btn-sm btn-outline-secondary btn-copy"
-                          data-i18n="copy"
+                          id="play-animation"
+                          class="btn btn-primary"
+                          data-i18n="play_animation"
                         >
-                          КОПИРОВАТЬ
+                          Play Animation
                         </button>
                       </div>
-                      <textarea
-                        class="form-control output"
-                        id="codeChar"
-                        cols="30"
-                        rows="10"
-                        readonly
-                      ></textarea>
-                      <br /><br /><br />
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div class="animation-controls">
-                <!-- Saved Frames Section -->
-                <div id="memory-status" data-i18n="remaining_memory">
-                  Оставшаяся память: 320 байт
-                </div>
-                <div class="animation-controls-container">
-                  <div class="saved-frames" id="savedFrames">
-                    <h3 data-i18n="saved_frames"></h3>
-                    <div class="frames-container">
-                      <!-- Frames will be dynamically added here -->
-                    </div>
-                  </div>
-                  <!-- Animation Controls -->
-                  <div class="controls">
-                    <div class="fps-control">
-                      <label for="fps" data-i18n="animation_fps">Animation FPS:</label>
-                      <input type="range" id="fps" min="1" max="24" value="2" />
-                      <span id="fpsValue">2</span> FPS
-                    </div>
-                  </div>
-                </div>
-
-                <button id="save-frame" class="btn btn-success" data-i18n="save_frame">
-                  Save Frame
-                </button>
-                <button id="play-animation" class="btn btn-primary" data-i18n="play_animation">
-                  Play Animation
-                </button>
               </div>
 
               <!-- Toggle Button -->
@@ -262,15 +274,6 @@
                 ></iframe>
               </div>
 
-              <div class="lcd-display-container">
-                <select id="lcd-select">
-                  <option value="16x2">16x2</option>
-                  <option value="20x4">20x4</option>
-                </select>
-                <div id="lcd-display" class="lcd-display">
-                  <!-- Ячейки динамически создаются в JS -->
-                </div>
-              </div>
             </div>
 
             <!-- Arduino Code Tab -->

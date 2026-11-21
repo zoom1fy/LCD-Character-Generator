@@ -84,21 +84,20 @@ function generatePixelGrid(rows = 8, cols = 5) {
   gridContainer.innerHTML = ''; // Очищаем контейнер
 
   for (let row = 0; row < rows; row++) {
+    // Ряд пикселей (зазоры задаёт CSS gap)
+    const rowEl = document.createElement('div');
+    rowEl.className = 'pixel-row';
+
     for (let col = 0; col < cols; col++) {
       // Создаём canvas-элемент
       const pixel = document.createElement('canvas');
       pixel.id = `pixel-${row}-${col}`;
       pixel.className = 'pixel off';
 
-      // Добавляем в контейнер
-      gridContainer.appendChild(pixel);
-      gridContainer.appendChild(document.createTextNode(' '));
+      rowEl.appendChild(pixel);
     }
 
-    // После каждой строки добавляем <br> (кроме последней)
-    if (row < rows - 1) {
-      gridContainer.appendChild(document.createElement('br'));
-    }
+    gridContainer.appendChild(rowEl);
   }
 }
 

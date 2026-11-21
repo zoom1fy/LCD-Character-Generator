@@ -1,4 +1,4 @@
-const PROJECT_VERSION = '0.19.0';
+const PROJECT_VERSION = '0.20.0';
 
 /*============ ТЕМА ОФОРМЛЕНИЯ ============*/
 const THEME_STORAGE_KEY = 'theme';

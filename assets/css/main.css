@@ -2,11 +2,13 @@
    Глобальные стили
    ========================================================================== */
 :root {
+    color-scheme: light;
     --background-color: #f5f5f5;
     --text-color: black;
     --color-off: #5EFB6E;
     --color-on: #484848;
     --color-border: #ccc;
+    --color-secondary-text: #495057;
     --color-btn-danger: #dc3545;
     --color-btn-danger-hover: #c82333;
     --color-btn-warning: #ffc107;
@@ -35,24 +37,51 @@
     --color-select-focus-border: #007BFF;
     --color-option-bg: #fff;
     --color-option-color: #333;
+    /* Стрелка выпадающего списка */
+    --select-arrow: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="%23333" d="M0 0l5 5 5-5z"/></svg>');
+    /* Контекстное меню */
+    --color-context-menu-bg: #ffffff;
+    --color-context-menu-hover: #f5f5f5;
+    --color-context-menu-divider: #eeeeee;
+    --color-context-menu-shadow: rgba(0, 0, 0, 0.15);
+    /* Блоки с кодом */
+    --color-code-bg: #f6f8fa;
+    --color-code-border: #ced4da;
 }
 
 /* Темная тема */
 [data-theme="dark"] {
+    color-scheme: dark;
     --background-color: #333;
     --text-color: white;
     --color-off: #5EFB6E;
     --color-on: #484848;
+    --color-secondary-text: #d0d0d0;
     --color-saved-frames-border: #484848;
+    --color-saved-frame-border: #484848;
     --color-saved-frames-bg: #333;
-    --color-saved-frames-shadow: rgba(255, 255, 255, 0.254);
+    --color-saved-frames-shadow: rgba(0, 0, 0, 0.5);
     --color-controls-border: #484848;
     --color-controls-bg: #333;
-    --color-controls-shadow: rgba(255, 255, 255, 0.254);
+    --color-controls-shadow: rgba(0, 0, 0, 0.5);
     --color-select-border: #484848;
     --color-select-bg: #333;
     --color-select-color: white;
     --color-select-focus-border: #007BFF;
+    --color-pdf-panel-bg: #2a2a2a;
+    --color-pdf-panel-shadow: rgba(0, 0, 0, 0.6);
+    --color-option-bg: #2a2a2a;
+    --color-option-color: #f0f0f0;
+    /* Стрелка выпадающего списка */
+    --select-arrow: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="%23e0e0e0" d="M0 0l5 5 5-5z"/></svg>');
+    /* Контекстное меню */
+    --color-context-menu-bg: #2a2a2a;
+    --color-context-menu-hover: #3a3a3a;
+    --color-context-menu-divider: #484848;
+    --color-context-menu-shadow: rgba(0, 0, 0, 0.6);
+    /* Блоки с кодом (GitHub Dark) */
+    --color-code-bg: #161b22;
+    --color-code-border: #30363d;
 }
 
 body {
@@ -189,6 +218,30 @@ pre {
 }
 
 /* ==========================================================================
+   Тёмная тема — корректировки Bootstrap-компонентов
+   ========================================================================== */
+[data-theme="dark"] .btn-outline-secondary {
+    --bs-btn-color: #adb5bd;
+    --bs-btn-border-color: #495057;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #3a3f44;
+    --bs-btn-hover-border-color: #51585e;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #41464b;
+    --bs-btn-active-border-color: #51585e;
+}
+
+[data-theme="dark"] .form-control {
+    background-color: var(--color-saved-frames-bg);
+    border-color: var(--color-saved-frame-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ==========================================================================
    Управление анимацией
    ========================================================================== */
 .animation-controls {
@@ -245,7 +298,7 @@ pre {
 
 .saved-frames h3 {
     font-size: 18px;
-    color: #495057;
+    color: var(--color-secondary-text);
     margin-bottom: 15px;
     text-align: center;
 }
@@ -291,7 +344,7 @@ pre {
     text-align: center;
     font-size: 12px;
     font-weight: bold;
-    color: #495057;
+    color: var(--color-secondary-text);
     margin-right: 10px;
     transition: transform 0.3s ease;
     /* Плавный переход для ховера */
@@ -430,9 +483,11 @@ input[type="range"] {
 .context-menu {
     position: fixed;
     min-width: 180px;
-    background-color: #ffffff;
+    background-color: var(--color-context-menu-bg);
+    color: var(--text-color);
+    border: 1px solid var(--color-select-border);
     border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 10px var(--color-context-menu-shadow);
     z-index: 1000;
     overflow: hidden;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -450,7 +505,7 @@ input[type="range"] {
 }
 
 .context-menu-item:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-context-menu-hover);
 }
 
 .context-menu-icon {
@@ -461,7 +516,7 @@ input[type="range"] {
 
 .context-menu-divider {
     height: 1px;
-    background-color: #eeeeee;
+    background-color: var(--color-context-menu-divider);
     margin: 4px 0;
 }
 
@@ -474,7 +529,7 @@ select {
     background-color: var(--color-select-bg);
     color: var(--color-select-color);
     appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="%23333" d="M0 0l5 5 5-5z"/></svg>');
+    background-image: var(--select-arrow);
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 10px;
@@ -509,6 +564,101 @@ footer p {
 .copyright-bar {
     background-color: rgba(0, 0, 0, 0.05);
     color: #ffffff;
+}
+
+/* ==========================================================================
+   Подсветка кода (highlight.js) — тёмная тема GitHub Dark
+   ========================================================================== */
+[data-theme="dark"] .hljs {
+    color: #e6edf3;
+    background: transparent;
+}
+
+[data-theme="dark"] .hljs-doctag,
+[data-theme="dark"] .hljs-keyword,
+[data-theme="dark"] .hljs-meta .hljs-keyword,
+[data-theme="dark"] .hljs-template-tag,
+[data-theme="dark"] .hljs-template-variable,
+[data-theme="dark"] .hljs-type,
+[data-theme="dark"] .hljs-variable.language_ {
+    color: #ff7b72;
+}
+
+[data-theme="dark"] .hljs-title,
+[data-theme="dark"] .hljs-title.class_,
+[data-theme="dark"] .hljs-title.class_.inherited__,
+[data-theme="dark"] .hljs-title.function_ {
+    color: #d2a8ff;
+}
+
+[data-theme="dark"] .hljs-attr,
+[data-theme="dark"] .hljs-attribute,
+[data-theme="dark"] .hljs-literal,
+[data-theme="dark"] .hljs-meta,
+[data-theme="dark"] .hljs-number,
+[data-theme="dark"] .hljs-operator,
+[data-theme="dark"] .hljs-selector-attr,
+[data-theme="dark"] .hljs-selector-class,
+[data-theme="dark"] .hljs-selector-id,
+[data-theme="dark"] .hljs-variable {
+    color: #79c0ff;
+}
+
+[data-theme="dark"] .hljs-meta .hljs-string,
+[data-theme="dark"] .hljs-regexp,
+[data-theme="dark"] .hljs-string {
+    color: #a5d6ff;
+}
+
+[data-theme="dark"] .hljs-built_in,
+[data-theme="dark"] .hljs-symbol {
+    color: #ffa657;
+}
+
+[data-theme="dark"] .hljs-code,
+[data-theme="dark"] .hljs-comment,
+[data-theme="dark"] .hljs-formula {
+    color: #8b949e;
+}
+
+[data-theme="dark"] .hljs-name,
+[data-theme="dark"] .hljs-quote,
+[data-theme="dark"] .hljs-selector-pseudo,
+[data-theme="dark"] .hljs-selector-tag {
+    color: #7ee787;
+}
+
+[data-theme="dark"] .hljs-subst {
+    color: #e6edf3;
+}
+
+[data-theme="dark"] .hljs-section {
+    color: #1f6feb;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .hljs-bullet {
+    color: #f2cc60;
+}
+
+[data-theme="dark"] .hljs-emphasis {
+    color: #e6edf3;
+    font-style: italic;
+}
+
+[data-theme="dark"] .hljs-strong {
+    color: #e6edf3;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .hljs-addition {
+    color: #aff5b4;
+    background-color: #033a16;
+}
+
+[data-theme="dark"] .hljs-deletion {
+    color: #ffdcd7;
+    background-color: #67060c;
 }
 
 /* ==========================================================================

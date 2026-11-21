@@ -1,5 +1,19 @@
 const PROJECT_VERSION = '0.18.5';
 
+/*============ ТЕМА ОФОРМЛЕНИЯ ============*/
+function getTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  // Синхронизируем тему Bootstrap
+  document.documentElement.setAttribute('data-bs-theme', theme);
+}
+
+// Применяем текущую тему при загрузке
+applyTheme(getTheme());
+
 // Определение языка
 let userLang = (navigator.language || navigator.userLanguage).startsWith('ru') ? 'ru' : 'en';
 
@@ -235,13 +249,14 @@ function duplicateFrame(index) {
   }
 }
 
-// SVG-иконки пунктов контекстного меню
-const CONTEXT_MENU_ICONS = {
-  duplicate:
-    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>',
-  delete:
-    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
-};
+// Иконки контекстного меню с цветом текущей темы
+function getContextMenuIcons() {
+  const fill = getTheme() === 'dark' ? '%23e0e0e0' : '%23444444';
+  return {
+    duplicate: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+    delete: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
+  };
+}
 
 function showContextMenu(event, index) {
   // Закрываем предыдущее меню, если оно есть
@@ -254,16 +269,18 @@ function showContextMenu(event, index) {
   contextMenu.style.left = `${event.clientX}px`;
   contextMenu.style.top = `${event.clientY}px`;
 
+  const menuIcons = getContextMenuIcons();
+
   // Создаем пункты меню
   const menuItems = [
     {
       text: translations[userLang].duplicate,
-      icon: CONTEXT_MENU_ICONS.duplicate,
+      icon: menuIcons.duplicate,
       action: () => duplicateFrame(index),
     },
     {
       text: translations[userLang].delete,
-      icon: CONTEXT_MENU_ICONS.delete,
+      icon: menuIcons.delete,
       action: () => deleteFrame(index),
     },
   ];
@@ -447,6 +464,7 @@ function showConfirmationAlert(message, callback) {
   Swal.fire({
     title: translations[userLang][message],
     icon: 'warning',
+    theme: getTheme(),
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
@@ -464,6 +482,7 @@ function showErrorAlert(message) {
     title: translations[userLang].error,
     text: translations[userLang][message],
     icon: 'error',
+    theme: getTheme(),
     confirmButtonText: translations[userLang].ok,
     confirmButtonColor: '#3085d6',
   });
@@ -475,6 +494,7 @@ function showWarningAlert(message, options = {}) {
     text: translations[userLang][message] || message,
     icon: 'warning',
     iconColor: '#ffc107',
+    theme: getTheme(),
     confirmButtonText: translations[userLang].ok || 'OK',
     confirmButtonColor: '#3085d6',
     backdrop: true,
@@ -554,10 +574,7 @@ document.getElementById('load-state').addEventListener('change', function (event
   event.target.value = '';
 });
 document.getElementById('theme-toggle').addEventListener('click', function () {
-  document.body.setAttribute(
-    'data-theme',
-    document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
-  );
+  applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
 });
 
 async function copyToClipboard(elementId) {
@@ -569,6 +586,7 @@ async function copyToClipboard(elementId) {
       icon: 'success',
       title: translations[userLang].success,
       text: translations[userLang].copy_success,
+      theme: getTheme(),
       timer: 2000,
       showConfirmButton: false,
     });
@@ -577,6 +595,7 @@ async function copyToClipboard(elementId) {
       icon: 'error',
       title: translations[userLang].error,
       text: translations[userLang].copy_error,
+      theme: getTheme(),
     });
   }
 }

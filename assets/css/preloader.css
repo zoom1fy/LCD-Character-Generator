@@ -86,13 +86,13 @@
 }
 
 [data-theme="light"] {
-    --bg-color: #ffffff;
+    --bg-color: #f5f5f5;
     --spinner-color: #007bff;
     --text-color: #333333;
 }
 
 [data-theme="dark"] {
-    --bg-color: #121212;
+    --bg-color: #333;
     --spinner-color: #00aaff;
     --text-color: #f5f5f5;
 }

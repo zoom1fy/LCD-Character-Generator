@@ -191,8 +191,9 @@ function saveFrame() {
 }
 
 function renderSavedFrames() {
-  const savedFramesContainer = document.getElementById('savedFrames');
-  savedFramesContainer.innerHTML = '';
+  // Очищаем только контейнер кадров, не трогая заголовок
+  const framesContainer = document.querySelector('#savedFrames .frames-container');
+  framesContainer.innerHTML = '';
   savedFrames.forEach((frame, index) => {
     const canvas = document.createElement('canvas');
     canvas.width = 50;

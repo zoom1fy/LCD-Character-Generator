@@ -92,6 +92,8 @@ function switchCell(index) {
     // Загружаем кадры из хранилища
     savedFrames = clone(cellAnimations[index]);
     renderSavedFrames();
+    // Счётчик памяти зависит от числа кадров выбранной ячейки
+    calculateMemoryUsage();
 
     if (savedFrames.length > 0) {
       loadFrame(savedFrames[0]);

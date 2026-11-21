@@ -49,9 +49,14 @@ const translations = {
     copy_success: 'Text copied to clipboard',
     copy_error: 'Failed to copy text',
     edit: 'Edit',
+    move_left: 'Move Left',
+    move_right: 'Move Right',
     editing_frame: 'Editing frame {0}',
     editing_hint: 'Pixel changes are saved to this frame automatically',
     done_editing: 'Done',
+    frames_hint:
+      'Click a frame to edit it. Drag frames to reorder. Right-click a frame for options.',
+    frame_tooltip: 'Frame {0}: click to edit, drag to reorder, right-click for menu',
     no_frames: 'No frames yet. Draw a character and click "Save Frame".'
   },
   ru: {
@@ -103,9 +108,15 @@ const translations = {
     copy_success: 'Текст скопирован в буфер обмена',
     copy_error: 'Не удалось скопировать текст',
     edit: 'Редактировать',
+    move_left: 'Сдвинуть влево',
+    move_right: 'Сдвинуть вправо',
     editing_frame: 'Редактирование кадра {0}',
     editing_hint: 'Изменения пикселей автоматически сохраняются в этот кадр',
     done_editing: 'Готово',
+    frames_hint:
+      'Клик по кадру — редактирование. Перетащите кадр, чтобы изменить порядок. Правый клик — меню.',
+    frame_tooltip:
+      'Кадр {0}: клик — редактировать, перетащить — порядок, правый клик — меню',
     no_frames: 'Кадров пока нет. Нарисуйте символ и нажмите «Сохранить кадр».',
   },
 };

@@ -181,6 +181,9 @@ let savedFrames = [];
 let currentFrameIndex = -1;
 // Индекс кадра, который сейчас редактируется в пиксель-редакторе (null — режим выключен)
 let editingFrameIndex = null;
+// Индекс кадра, который сейчас перетаскивают, и маркер места вставки
+let dragFrameIndex = null;
+let dropIndicator = null;
 
 const framesContainerEl = document.querySelector('#savedFrames .frames-container');
 
@@ -220,6 +223,7 @@ function drawFrameToCanvas(canvas, frame) {
 
 function renderSavedFrames() {
   // Очищаем только контейнер кадров, не трогая заголовок
+  removeDropIndicator();
   framesContainerEl.innerHTML = '';
 
   if (savedFrames.length === 0) {
@@ -231,13 +235,20 @@ function renderSavedFrames() {
   }
 
   savedFrames.forEach((frame, index) => {
-    // Обёртка — кликабельный элемент, канвас — только картинка
+    // Обёртка — перетаскиваемый элемент, канвас — только картинка
     const wrapper = document.createElement('div');
     wrapper.className = 'frame-wrapper';
     if (index === editingFrameIndex) {
       wrapper.classList.add('editing');
     }
     wrapper.dataset.index = index;
+    wrapper.draggable = true;
+    wrapper.title = translations[userLang].frame_tooltip.replace('{0}', index + 1);
+
+    // Номер кадра — наглядный порядок в анимации
+    const number = document.createElement('span');
+    number.className = 'frame-number';
+    number.innerText = index + 1;
 
     const canvas = document.createElement('canvas');
     canvas.width = 50;
@@ -245,6 +256,7 @@ function renderSavedFrames() {
     canvas.className = 'saved-frame';
     drawFrameToCanvas(canvas, frame);
 
+    wrapper.appendChild(number);
     wrapper.appendChild(canvas);
 
     // Клик по кадру — вход в режим редактирования (повторный клик — выход)
@@ -254,8 +266,126 @@ function renderSavedFrames() {
       showContextMenu(event, index);
     });
 
+    wrapper.addEventListener('dragstart', (event) => {
+      dragFrameIndex = index;
+      wrapper.classList.add('dragging');
+      // dataTransfer обязателен для запуска DnD в Firefox
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', String(index));
+    });
+    wrapper.addEventListener('dragend', () => {
+      wrapper.classList.remove('dragging');
+      dragFrameIndex = null;
+      removeDropIndicator();
+    });
+
     framesContainerEl.appendChild(wrapper);
   });
+}
+
+/*============ ПЕРЕТАСКИВАНИЕ КАДРОВ ============*/
+// Маркер места вставки показывается, пока курсор над контейнером кадров
+function showDropIndicator(referenceWrapper, before) {
+  if (!dropIndicator) {
+    dropIndicator = document.createElement('div');
+    dropIndicator.className = 'drop-indicator';
+  }
+  // Не трогаем DOM без необходимости — индикатор уже в нужном месте
+  if (dropIndicator.parentElement === framesContainerEl) {
+    if (before && dropIndicator.nextElementSibling === referenceWrapper) return;
+    if (!before && dropIndicator.previousElementSibling === referenceWrapper) return;
+  }
+  if (before) {
+    framesContainerEl.insertBefore(dropIndicator, referenceWrapper);
+  } else {
+    framesContainerEl.insertBefore(dropIndicator, referenceWrapper.nextSibling);
+  }
+}
+
+function removeDropIndicator() {
+  if (dropIndicator && dropIndicator.parentElement) {
+    dropIndicator.remove();
+  }
+}
+
+// Автопрокрутка, когда кадр тащат у края контейнера
+function autoScrollFramesContainer(event) {
+  const rect = framesContainerEl.getBoundingClientRect();
+  const threshold = 40;
+  if (event.clientX < rect.left + threshold) {
+    framesContainerEl.scrollLeft -= 24;
+  } else if (event.clientX > rect.right - threshold) {
+    framesContainerEl.scrollLeft += 24;
+  }
+}
+
+// Позиция вставки по координате курсора (dragover и drop)
+function computeDropPosition(event) {
+  const wrappers = Array.from(framesContainerEl.querySelectorAll('.frame-wrapper'));
+  for (const wrapper of wrappers) {
+    const rect = wrapper.getBoundingClientRect();
+    if (event.clientX < rect.right) {
+      // Курсор над кадром: левая половина — вставка до, правая — после
+      const before = event.clientX < rect.left + rect.width / 2;
+      return {
+        reference: wrapper,
+        before,
+        insertAt: before ? Number(wrapper.dataset.index) : Number(wrapper.dataset.index) + 1,
+      };
+    }
+  }
+  // Курсор правее всех кадров — вставка в конец
+  const last = wrappers.length > 0 ? wrappers[wrappers.length - 1] : null;
+  return { reference: last, before: false, insertAt: savedFrames.length };
+}
+
+function onFramesDragOver(event) {
+  if (dragFrameIndex === null) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+  autoScrollFramesContainer(event);
+
+  const { reference, before } = computeDropPosition(event);
+  if (reference) {
+    showDropIndicator(reference, before);
+  }
+}
+
+function onFramesDrop(event) {
+  if (dragFrameIndex === null) return;
+  event.preventDefault();
+
+  const { insertAt } = computeDropPosition(event);
+  moveFrame(dragFrameIndex, insertAt);
+  dragFrameIndex = null;
+  removeDropIndicator();
+}
+
+// Переносит кадр с позиции fromIndex на позицию вставки insertAt
+function moveFrame(fromIndex, insertAt) {
+  if (fromIndex < 0 || fromIndex >= savedFrames.length) return;
+  if (insertAt < 0 || insertAt > savedFrames.length) return;
+  // «До себя» и «после себя» — ничего не делаем
+  if (fromIndex === insertAt || fromIndex === insertAt - 1) return;
+
+  // Запоминаем редактируемый кадр по ссылке, чтобы найти его после переноса
+  const editedFrame = editingFrameIndex !== null ? savedFrames[editingFrameIndex] : null;
+
+  const moved = savedFrames.splice(fromIndex, 1)[0];
+  const target = insertAt > fromIndex ? insertAt - 1 : insertAt;
+  savedFrames.splice(target, 0, moved);
+
+  if (editedFrame) {
+    const newIndex = savedFrames.indexOf(editedFrame);
+    if (newIndex !== -1) {
+      editingFrameIndex = newIndex;
+      updateEditingStatus();
+    }
+  }
+
+  syncCurrentCellFrames();
+  renderSavedFrames();
+  calculateMemoryUsage();
 }
 
 /*============ РЕДАКТИРОВАНИЕ СОХРАНЁННЫХ КАДРОВ ============*/
@@ -356,6 +486,8 @@ function getContextMenuIcons() {
   return {
     edit: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
     duplicate: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`,
+    moveLeft: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>`,
+    moveRight: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>`,
     delete: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
   };
 }
@@ -384,6 +516,16 @@ function showContextMenu(event, index) {
       text: translations[userLang].duplicate,
       icon: menuIcons.duplicate,
       action: () => duplicateFrame(index),
+    },
+    {
+      text: translations[userLang].move_left,
+      icon: menuIcons.moveLeft,
+      action: () => moveFrame(index, index - 1),
+    },
+    {
+      text: translations[userLang].move_right,
+      icon: menuIcons.moveRight,
+      action: () => moveFrame(index, index + 2),
     },
     {
       text: translations[userLang].delete,
@@ -689,6 +831,10 @@ document.getElementById('theme-toggle').addEventListener('click', function () {
 });
 
 /*============ СОБЫТИЯ КАДРОВ И РЕДАКТИРОВАНИЯ ============*/
+// Drag&drop живёт на контейнере: кадры пересоздаются при каждом рендере
+framesContainerEl.addEventListener('dragover', onFramesDragOver);
+framesContainerEl.addEventListener('drop', onFramesDrop);
+
 document.getElementById('stop-editing-btn').addEventListener('click', stopEditingFrame);
 
 // Esc — быстрый выход из режима редактирования кадра

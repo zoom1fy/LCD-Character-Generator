@@ -8,6 +8,7 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 - **Arduino Code Generation**: Automatically generate Arduino code for the custom characters.
 - **Frame Management**: Save, load, edit, duplicate, and delete frames for animations.
 - **Frame Editing**: Click a saved frame to edit it right in the pixel editor — changes are saved back to the frame automatically.
+- **Drag & Drop Reordering**: Reorder frames with clear visual feedback (drop indicator, frame numbers).
 - **Animation Control**: Play and stop animations with adjustable FPS.
 - **Memory Usage Tracking**: Monitor the memory usage of saved frames.
 

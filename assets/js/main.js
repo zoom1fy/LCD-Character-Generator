@@ -59,6 +59,9 @@ document.querySelectorAll('.dropdown-item[data-lang]').forEach((item) => {
     userLang = item.getAttribute('data-lang');
     applyTranslations();
 
+    // Перегенерируем вывод
+    generateOutput();
+
     // Закрываем дропдаун после выбора
     const toggle = item.closest('.dropdown').querySelector('.dropdown-toggle');
     bootstrap.Dropdown.getInstance(toggle)?.hide();

@@ -44,6 +44,7 @@ const translations = {
     pin_warning_0: 'Pin 0 is used for Serial. This may cause problems!',
     pin_warning_1: 'Pin 1 is used for Serial. This may cause problems!',
     noFrameMes: 'No frames saved for this cell.',
+    no_animation_comment: '// No animation for this cell',
     success: 'Success!',
     copy_success: 'Text copied to clipboard',
     copy_error: 'Failed to copy text'
@@ -92,6 +93,7 @@ const translations = {
     pin_warning_0: 'Пин 0 используется для Serial. Это может вызвать проблемы!',
     pin_warning_1: 'Пин 1 используется для Serial. Это может вызвать проблемы!',
     noFrameMes: 'Для этой ячейки не сохранено ни одного кадра',
+    no_animation_comment: '// Для этой ячейки нет анимации',
     success: 'Успешно!',
     copy_success: 'Текст скопирован в буфер обмена',
     copy_error: 'Не удалось скопировать текст',

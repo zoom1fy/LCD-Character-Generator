@@ -17,7 +17,7 @@ function generateOutput() {
   // Проверка на наличие кадров
   if (frames.length === 0) {
     document.getElementById('codeChar').value = translations[userLang].noFrameMes;
-    document.getElementById('codeArduino').textContent = '// No animation for this cell';
+    document.getElementById('codeArduino').textContent = translations[userLang].no_animation_comment;
     return;
   }
 

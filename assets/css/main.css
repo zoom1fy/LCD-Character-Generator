@@ -770,7 +770,8 @@ footer p {
 /* Узкие экраны: всё складывается в одну колонку */
 @media (max-width: 991px) {
     .workspace-main {
-        grid-template-columns: 1fr;
+        /* minmax(0, 1fr): трек не растягивается под широкую панель */
+        grid-template-columns: minmax(0, 1fr);
     }
 
     #code {
@@ -826,6 +827,21 @@ footer p {
         padding: 5px;
     }
 
+    /* Компактные ячейки под ширину телефона */
+    .lcd-display[data-cols='16'] .lcd-cell {
+        width: 18px;
+        height: 29px;
+    }
+
+    .lcd-display[data-cols='20'] .lcd-cell {
+        width: 15px;
+        height: 24px;
+    }
+
+    .lcd-display[data-cols='20'] {
+        padding: 4px;
+    }
+
     .lcd-row {
         flex-wrap: nowrap;
         min-width: fit-content;
@@ -873,7 +889,8 @@ footer p {
     }
 
     .container {
-        padding: 0 10px;
+        /* 12px = бутстрап-гаттер: отрицательные маржины .row полностью поглощаются */
+        padding: 0 12px;
     }
 
     .row {

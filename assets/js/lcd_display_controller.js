@@ -12,6 +12,7 @@ function createLcdCells(rows, cols) {
   });
 
   lcdDisplay.innerHTML = ''; // Очистка экрана перед созданием новых ячеек
+  lcdDisplay.setAttribute('data-cols', cols); // Число колонок — для CSS-подстройки размера ячеек
 
   for (let r = 0; r < rows; r++) {
     const row = document.createElement('div');

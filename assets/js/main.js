@@ -1,6 +1,8 @@
 const PROJECT_VERSION = '0.18.5';
 
 /*============ ТЕМА ОФОРМЛЕНИЯ ============*/
+const THEME_STORAGE_KEY = 'theme';
+
 function getTheme() {
   return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
@@ -9,6 +11,11 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   // Синхронизируем тему Bootstrap
   document.documentElement.setAttribute('data-bs-theme', theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    /* localStorage может быть недоступен */
+  }
 }
 
 // Применяем текущую тему при загрузке

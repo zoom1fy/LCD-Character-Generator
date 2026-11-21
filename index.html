@@ -3,6 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <title>Custom Character Generator for HD44780 LCD Modules</title>
+    <!-- Инициализация темы до отрисовки страницы -->
+    <script>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('theme');
+        } catch (e) {}
+        var theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <link href="assets/css/preloader.css" rel="stylesheet" />
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />

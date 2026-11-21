@@ -231,7 +231,7 @@ function renderSavedFrames() {
         ctx.fillRect(j * 10, i * 10, 10, 10);
       });
     });
-    savedFramesContainer.appendChild(canvas);
+    framesContainer.appendChild(canvas);
   });
 }
 
@@ -586,10 +586,41 @@ document.getElementById('theme-toggle').addEventListener('click', function () {
 });
 
 async function copyToClipboard(elementId) {
-  try {
-    const element = document.getElementById(elementId);
-    const textToCopy = element.tagName === 'TEXTAREA' ? element.value : element.textContent;
-    await navigator.clipboard.writeText(textToCopy);
+  const element = document.getElementById(elementId);
+  const textToCopy = element.tagName === 'TEXTAREA' ? element.value : element.textContent;
+
+  let copied = false;
+
+  // Clipboard API доступен только в защищённом контексте
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      copied = true;
+    } catch {
+      /* переходим к резервному способу */
+    }
+  }
+
+  // Резервное копирование через execCommand
+  if (!copied) {
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.value = textToCopy;
+    tempTextarea.setAttribute('readonly', '');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.top = '0';
+    tempTextarea.style.opacity = '0';
+    document.body.appendChild(tempTextarea);
+    tempTextarea.focus();
+    tempTextarea.select();
+    try {
+      copied = document.execCommand('copy');
+    } catch {
+      copied = false;
+    }
+    document.body.removeChild(tempTextarea);
+  }
+
+  if (copied) {
     Swal.fire({
       icon: 'success',
       title: translations[userLang].success,
@@ -598,7 +629,7 @@ async function copyToClipboard(elementId) {
       timer: 2000,
       showConfirmButton: false,
     });
-  } catch (err) {
+  } else {
     Swal.fire({
       icon: 'error',
       title: translations[userLang].error,

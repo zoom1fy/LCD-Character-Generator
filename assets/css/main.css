@@ -96,15 +96,32 @@ body {
    Основные элементы
    ========================================================================== */
 .workspace {
-    margin-top: 25px;
+    margin-top: 12px;
 }
 
-/* Верхний ряд рабочей панели: редактор | предпросмотр | код */
+/* Верхний ряд рабочей панели: код | предпросмотр | редактор (правый край).
+   Панель пикселей стоит над блоком управления анимацией (правые 320px нижнего ряда). */
 .workspace-main {
     display: grid;
-    grid-template-columns: minmax(200px, auto) minmax(0, 1fr) minmax(260px, 320px);
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(200px, 320px);
     gap: 20px;
     align-items: stretch;
+}
+
+/* Явные места в сетке: DOM-порядок оставлен под мобильную раскладку */
+#lcd-panel {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#code {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#pixels {
+    grid-column: 3;
+    grid-row: 1;
 }
 
 /* Панель-карточка рабочей области */
@@ -113,7 +130,7 @@ body {
     background-color: var(--color-saved-frames-bg);
     border-radius: 10px;
     box-shadow: 0 2px 4px var(--color-saved-frames-shadow);
-    padding: 16px;
+    padding: 12px;
     transition: 0.5s;
 }
 
@@ -124,8 +141,8 @@ body {
 }
 
 #pixels h2 {
-    font-size: 1.25rem;
-    margin: 0 0 12px;
+    font-size: 1.1rem;
+    margin: 0 0 8px;
 }
 
 /* Сетка пикселей: равные зазоры по обеим осям */
@@ -149,7 +166,7 @@ body {
 
 #code textarea {
     flex: 1;
-    min-height: 220px;
+    min-height: 180px;
     width: 100%;
 }
 
@@ -181,8 +198,8 @@ pre {
    Пиксели и кнопки
    ========================================================================== */
 .pixel {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
     border: 1px solid var(--color-border);
     cursor: pointer;
     transition: background-color 0.15s ease;
@@ -208,7 +225,9 @@ pre {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    margin-top: 20px;
+    /* Кнопки прижаты к низу растянутой панели — на уровне низа соседних панелей */
+    margin-top: auto;
+    padding-top: 10px;
 }
 
 .btn-custom {
@@ -289,7 +308,7 @@ pre {
    Управление анимацией
    ========================================================================== */
 .animation-controls {
-    margin-top: 20px;
+    margin-top: 14px;
 }
 
 .animation-controls-container {
@@ -323,13 +342,13 @@ pre {
 }
 
 .saved-frames {
-    padding: 15px;
+    padding: 12px;
     border: 1px solid var(--color-saved-frames-border);
     background-color: var(--color-saved-frames-bg);
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--color-saved-frames-shadow);
     width: 100%;
-    min-height: 120px;
+    min-height: 100px;
     transition: 0.5s;
 }
 
@@ -877,33 +896,47 @@ footer p {
 /* ==========================================================================
    Медиа-запросы
    ========================================================================== */
-/* Ноутбуки и планшеты: редактор + предпросмотр рядом, код под ними */
+/* Ноутбуки и планшеты: предпросмотр + редактор рядом, код под ними */
 @media (max-width: 1399px) {
     .workspace-main {
-        grid-template-columns: minmax(200px, auto) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(200px, 320px);
+    }
+
+    #lcd-panel {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    #pixels {
+        grid-column: 2;
+        grid-row: 1;
     }
 
     #code {
         grid-column: 1 / -1;
+        grid-row: 2;
     }
 }
 
-/* Узкие экраны: всё складывается в одну колонку */
+/* Узкие экраны: всё складывается в одну колонку (DOM-порядок) */
 @media (max-width: 991px) {
     .workspace-main {
         /* minmax(0, 1fr): трек не растягивается под широкую панель */
         grid-template-columns: minmax(0, 1fr);
     }
 
-    #code {
+    #lcd-panel,
+    #code,
+    #pixels {
         grid-column: auto;
+        grid-row: auto;
     }
 }
 
 /* Телефоны */
 @media (max-width: 768px) {
     .workspace {
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
     .workspace-main {

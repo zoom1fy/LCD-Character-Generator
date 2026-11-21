@@ -93,7 +93,12 @@
             </div>
 
             <!-- Тема -->
-            <button id="theme-toggle" class="btn btn-sm btn-outline-light">
+            <button
+              id="theme-toggle"
+              class="theme-toggle-button"
+              type="button"
+              aria-label="Toggle theme"
+            >
               <span class="icon moon"><i class="bi bi-moon"></i></span>
               <span class="icon sun"><i class="bi bi-sun"></i></span>
             </button>
@@ -172,16 +177,13 @@
 
                   <!-- Code tab -->
                   <div class="col-md-3">
-                    <div id="code" style="margin: 0 auto">
-                      <div
-                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px"
-                      >
-                        <h3 style="margin: 0" data-i18n="output">Вывод</h3>
+                    <div id="code">
+                      <div class="code-header">
+                        <h3 data-i18n="output">Вывод</h3>
                         <button
-                          class="btn btn-sm btn-outline-secondary"
-                          style="height: fit-content; padding: 5px 10px"
+                          id="copy-char-btn"
+                          class="btn btn-sm btn-outline-secondary btn-copy"
                           data-i18n="copy"
-                          onclick="copyToClipboard('codeChar')"
                         >
                           КОПИРОВАТЬ
                         </button>
@@ -202,7 +204,7 @@
               <div class="animation-controls">
                 <!-- Saved Frames Section -->
                 <div id="memory-status" data-i18n="remaining_memory">
-                  Оставшаяся память: 1016 байт
+                  Оставшаяся память: 320 байт
                 </div>
                 <div class="animation-controls-container">
                   <div class="saved-frames" id="savedFrames">
@@ -298,8 +300,8 @@
               <div class="code-header">
                 <h4 data-i18n="output">Вывод</h4>
                 <button
+                  id="copy-arduino-btn"
                   class="btn btn-sm btn-outline-secondary"
-                  onclick="copyToClipboard('codeArduino')"
                   data-i18n="copy"
                 >
                   КОПИРОВАТЬ

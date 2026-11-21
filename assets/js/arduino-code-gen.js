@@ -1,19 +1,17 @@
+// Список полей ввода пинов
+const PIN_IDS = ['RSPin', 'EnablePin', 'D4Pin', 'D5Pin', 'D6Pin', 'D7Pin'];
+
 // Функция для проверки "особых" пинов
-function checkSpecialPins(pinValue, pinName) {
+function checkSpecialPins(pinValue) {
   const specialPins = [0, 1]; // Пины, используемые для Serial на Arduino Uno
-  if (specialPins.includes(parseInt(pinValue))) {
-    showWarningAlert(`pin_warning_${pinValue}`);
+  const pinNumber = parseInt(pinValue, 10);
+  if (specialPins.includes(pinNumber)) {
+    showWarningAlert(`pin_warning_${pinNumber}`);
   }
 }
 
-// Обновленная функция generateOutput
+// Функция генерации кода Arduino
 function generateOutput() {
-  // Проверка пинов на "особенность"
-  ['RSPin', 'EnablePin', 'D4Pin', 'D5Pin', 'D6Pin', 'D7Pin'].forEach((id) => {
-    const pinValue = document.getElementById(id).value;
-    checkSpecialPins(pinValue, id);
-  });
-
   const frames = cellAnimations[currentCellIndex] || [];
 
   // Проверка на наличие кадров
@@ -70,7 +68,7 @@ const int delayMs = 1000 / ${fps};
 
 void loop() {
   lcd.setCursor(${colPos}, ${rowPos});
-  lcd.write(FRAME${frames.length > 1 ? 'frameIndex' : '0'});
+  lcd.write(${frames.length > 1 ? 'frameIndex' : 'FRAME0'});
   frameIndex = (frameIndex + 1) % numFrames;
   delay(delayMs);
 }`;
@@ -83,6 +81,9 @@ void loop() {
 }
 
 // Привязка обработчиков событий к полям ввода пинов
-['RSPin', 'EnablePin', 'D4Pin', 'D5Pin', 'D6Pin', 'D7Pin'].forEach((id) => {
-  document.getElementById(id).addEventListener('input', generateOutput);
+PIN_IDS.forEach((id) => {
+  document.getElementById(id).addEventListener('input', (event) => {
+    checkSpecialPins(event.target.value);
+    generateOutput();
+  });
 });

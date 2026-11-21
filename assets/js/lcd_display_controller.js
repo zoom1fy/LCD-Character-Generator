@@ -3,6 +3,14 @@ const lcdDisplay = document.getElementById('lcd-display');
 
 // Функция создания ячеек LCD
 function createLcdCells(rows, cols) {
+  // Останавливаем анимации старых ячеек
+  lcdCells.forEach((cell) => {
+    if (cell.dataset.animationFrame) {
+      cancelAnimationFrame(cell.dataset.animationFrame);
+      delete cell.dataset.animationFrame;
+    }
+  });
+
   lcdDisplay.innerHTML = ''; // Очистка экрана перед созданием новых ячеек
 
   for (let r = 0; r < rows; r++) {
@@ -25,13 +33,10 @@ function createLcdCells(rows, cols) {
   lcdCells = document.querySelectorAll('.lcd-cell');
 
   // Назначаем обработчики кликов на новые ячейки
-  lcdCells.forEach(cell => {
-    if (cell) {
-      cell.addEventListener('click', () => {
-        const index = parseInt(cell.getAttribute('data-index'));
-        switchCell(index);
-      });
-    }
+  lcdCells.forEach((cell) => {
+    cell.addEventListener('click', () => {
+      switchCell(parseInt(cell.getAttribute('data-index'), 10));
+    });
   });
 
   // Сбрасываем текущую ячейку и активируем первую
@@ -40,11 +45,11 @@ function createLcdCells(rows, cols) {
 
   // Активируем первую ячейку и запускаем анимации для всех ячеек
   switchCell(0);
-  startAllCellsAnimations(); // Добавляем этот вызов
+  startAllCellsAnimations();
 }
 
 // Обработчик изменения select
-lcdSelect.addEventListener('change', event => {
+lcdSelect.addEventListener('change', (event) => {
   const newConfig = event.target.value; // Новая конфигурация, например "20x4"
 
   // Сохраняем анимации текущего дисплея
@@ -66,10 +71,14 @@ lcdSelect.addEventListener('change', event => {
 });
 
 function switchCell(index) {
+  // Останавливаем предпросмотр анимации
+  if (animationInterval) {
+    stopAnimation();
+  }
+
   if (currentCell !== null) {
     currentCell.classList.remove('active');
-    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
-    clearInterval(currentCell.dataset.animationFrame); // Останавливаем анимацию
+    syncCurrentCellFrames();
     generateOutput();
   }
 
@@ -80,7 +89,7 @@ function switchCell(index) {
     currentCell.classList.add('active');
 
     // Загружаем кадры из хранилища
-    savedFrames = JSON.parse(JSON.stringify(cellAnimations[index]));
+    savedFrames = clone(cellAnimations[index]);
     renderSavedFrames();
 
     if (savedFrames.length > 0) {
@@ -94,23 +103,26 @@ function switchCell(index) {
 
 function startCellAnimation(cellIndex) {
   if (!Array.isArray(cellAnimations[cellIndex]) || cellAnimations[cellIndex].length === 0) {
-    console.warn(`No valid animation for cell ${cellIndex}`);
     return;
   }
 
   // Проверяем, что все кадры — массивы
-  const isValid = cellAnimations[cellIndex].every(frame => Array.isArray(frame));
+  const isValid = cellAnimations[cellIndex].every((frame) => Array.isArray(frame));
   if (!isValid) {
-    console.error(`Invalid frames for cell ${cellIndex}:`, cellAnimations[cellIndex]);
     return;
   }
 
   const cell = document.querySelector(`.lcd-cell[data-index="${cellIndex}"]`);
+  if (!cell) {
+    return;
+  }
+
   let frameIndex = 0;
-  const interval = 1000 / fps;
   let lastUpdate = 0;
 
   function animate(timestamp) {
+    // Интервал пересчитывается на каждом тике, чтобы смена FPS применялась сразу
+    const interval = 1000 / fps;
     if (timestamp - lastUpdate >= interval) {
       lastUpdate = timestamp;
       const frame = cellAnimations[cellIndex][frameIndex];
@@ -129,15 +141,24 @@ function startCellAnimation(cellIndex) {
   cell.dataset.animationFrame = requestAnimationFrame(animate);
 }
 
+// Останавливает анимацию ячейки и очищает её канвас
+function stopCellAnimation(cellIndex) {
+  const cell = document.querySelector(`.lcd-cell[data-index="${cellIndex}"]`);
+  if (!cell) {
+    return;
+  }
+  if (cell.dataset.animationFrame) {
+    cancelAnimationFrame(cell.dataset.animationFrame);
+    delete cell.dataset.animationFrame;
+  }
+  const ctx = cell.getContext('2d');
+  ctx.clearRect(0, 0, cell.width, cell.height);
+}
+
 function startAllCellsAnimations() {
   lcdCells.forEach((cell, index) => {
     if (cellAnimations[index] && cellAnimations[index].length > 0) {
-      console.log(`Starting animation for cell ${index}:`, cellAnimations[index]);
-      try {
-        startCellAnimation(index);
-      } catch (e) {
-        console.error(`Error starting animation for cell ${index}:`, e);
-      }
+      startCellAnimation(index);
     }
   });
 }
@@ -147,15 +168,12 @@ function renderFrameInCell(cell, frame) {
   ctx.clearRect(0, 0, cell.width, cell.height);
 
   if (!Array.isArray(frame)) {
-    console.error('Frame не является массивом:', frame);
     return;
   }
 
   for (let i = 0; i < frame.length; i++) {
-    // Check if frame[i] is an array
     if (!Array.isArray(frame[i])) {
-      console.error(`frame[${i}] is not an array:`, frame[i]);
-      continue; // Skip this iteration
+      continue; // Пропускаем некорректные строки
     }
     for (let j = 0; j < frame[i].length; j++) {
       ctx.fillStyle = frame[i][j] ? '#000' : '#5efb6e';
@@ -163,14 +181,3 @@ function renderFrameInCell(cell, frame) {
     }
   }
 }
-
-// Назначаем обработчики кликов на начальные ячейки
-lcdCells.forEach(cell => {
-  cell.addEventListener('click', () => {
-    const index = parseInt(cell.getAttribute('data-index'));
-    switchCell(index);
-  });
-});
-
-// Устанавливаем первую активную ячейку при загрузке
-switchCell(0);

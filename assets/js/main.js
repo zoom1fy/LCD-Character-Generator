@@ -8,13 +8,13 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach((element) => {
     const key = element.getAttribute('data-i18n');
     if (key === 'remaining_memory') {
-      const memory = element.innerText.match(/\d+/) ? element.innerText.match(/\d+/)[0] : '1016';
-      element.innerText = translations[userLang][key].replace('{0}', memory);
+      element.innerText = translations[userLang][key].replace('{0}', remainingMemory);
     } else {
       element.innerText = translations[userLang][key];
     }
   });
   document.title = translations[userLang].title;
+  document.documentElement.lang = userLang;
   if (animationInterval) {
     document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
   }
@@ -25,22 +25,24 @@ function applyTranslations() {
   updateLanguageDropdown();
 }
 
-// Обновление дропдауна языка
+// Обновление подписи текущего языка в дропдауне
 function updateLanguageDropdown() {
   const currentLangSpan = document.getElementById('current-language');
   currentLangSpan.innerText = translations[userLang][`lang_${userLang}`];
-  document.querySelectorAll('.dropdown-item[data-lang]').forEach((item) => {
-    item.addEventListener('click', function (e) {
-      e.preventDefault();
-      userLang = this.getAttribute('data-lang');
-      applyTranslations();
-
-      // Закрываем дропдаун после выбора
-      const dropdown = bootstrap.Dropdown.getInstance(document.querySelector('.dropdown-toggle'));
-      dropdown.hide();
-    });
-  });
 }
+
+// Обработчики выбора языка
+document.querySelectorAll('.dropdown-item[data-lang]').forEach((item) => {
+  item.addEventListener('click', (e) => {
+    e.preventDefault();
+    userLang = item.getAttribute('data-lang');
+    applyTranslations();
+
+    // Закрываем дропдаун после выбора
+    const toggle = item.closest('.dropdown').querySelector('.dropdown-toggle');
+    bootstrap.Dropdown.getInstance(toggle)?.hide();
+  });
+});
 
 /*============ ИНИЦИАЛИЗАЦИЯ И ПЕРЕМЕННЫЕ ============*/
 let customchar = Array.from({ length: 8 }, () => Array(5).fill(0));
@@ -51,10 +53,10 @@ let currentCellIndex = 0;
 let cellAnimations = Array.from({ length: 32 }, () => []);
 let displayAnimations = {}; // Объект для хранения анимаций по конфигурациям
 let currentConfig; // Текущая конфигурация дисплея (например, "16x2")
-let draggedElement = null;
 
 const memoryPerChar = 40;
 const totalMemory = 320;
+let remainingMemory = totalMemory; // Оставшаяся память для отображения в интерфейсе
 
 function generatePixelGrid(rows = 8, cols = 5) {
   const gridContainer = document.getElementById('pixel-grid');
@@ -73,7 +75,7 @@ function generatePixelGrid(rows = 8, cols = 5) {
     }
 
     // После каждой строки добавляем <br> (кроме последней)
-    if (row < rows) {
+    if (row < rows - 1) {
       gridContainer.appendChild(document.createElement('br'));
     }
   }
@@ -81,8 +83,8 @@ function generatePixelGrid(rows = 8, cols = 5) {
 
 /*============ ФУНКЦИЯ ДЛЯ ВЫЧИСЛЕНИЯ ИСПОЛЬЗУЕМОЙ ПАМЯТИ ============*/
 function calculateMemoryUsage() {
-  let usedMemory = savedFrames.length * memoryPerChar;
-  let remainingMemory = totalMemory - usedMemory;
+  const usedMemory = savedFrames.length * memoryPerChar;
+  remainingMemory = totalMemory - usedMemory;
   document.getElementById('memory-status').innerText = translations[
     userLang
   ].remaining_memory.replace('{0}', remainingMemory);
@@ -112,7 +114,6 @@ function togglePixel(pixel) {
   pixel.classList.toggle('on', !isOn);
   pixel.classList.toggle('off', isOn);
   customchar[row][column] = isOn ? 0 : 1;
-  calculateMemoryUsage();
 }
 
 function updateAllPixels() {
@@ -147,12 +148,18 @@ function reflectVertical() {
 /*============ СОХРАНЕНИЕ И РЕНДЕРИНГ КАДРОВ ============*/
 let savedFrames = [];
 let currentFrameIndex = -1;
-const framesContainer = document.querySelector('.frames-container');
+
+const clone = (value) => JSON.parse(JSON.stringify(value));
+
+// Синхронизирует кадры текущей ячейки с общим хранилищем анимаций
+function syncCurrentCellFrames() {
+  cellAnimations[currentCellIndex] = clone(savedFrames);
+}
 
 function saveFrame() {
   if (savedFrames.length * memoryPerChar < totalMemory) {
-    savedFrames.push(JSON.parse(JSON.stringify(customchar)));
-    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
+    savedFrames.push(clone(customchar));
+    syncCurrentCellFrames();
     renderSavedFrames();
     calculateMemoryUsage();
     startCellAnimation(currentCellIndex);
@@ -191,6 +198,7 @@ function renderSavedFrames() {
         savedFrames[targetIndex],
         savedFrames[draggedIndex],
       ];
+      syncCurrentCellFrames();
       renderSavedFrames();
       calculateMemoryUsage();
     });
@@ -202,13 +210,15 @@ function renderSavedFrames() {
       });
     });
     savedFramesContainer.appendChild(canvas);
-    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
   });
 }
 
 function deleteFrame(index) {
   savedFrames.splice(index, 1);
-  cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
+  syncCurrentCellFrames();
+  if (savedFrames.length === 0) {
+    stopCellAnimation(currentCellIndex);
+  }
   renderSavedFrames();
   calculateMemoryUsage();
 }
@@ -216,8 +226,8 @@ function deleteFrame(index) {
 function duplicateFrame(index) {
   if (savedFrames.length * memoryPerChar < totalMemory) {
     const frame = savedFrames[index];
-    savedFrames.splice(index, 0, JSON.parse(JSON.stringify(frame)));
-    cellAnimations[currentCellIndex] = JSON.parse(JSON.stringify(savedFrames));
+    savedFrames.splice(index, 0, clone(frame));
+    syncCurrentCellFrames();
     renderSavedFrames();
     calculateMemoryUsage();
   } else {
@@ -225,35 +235,35 @@ function duplicateFrame(index) {
   }
 }
 
+// SVG-иконки пунктов контекстного меню
+const CONTEXT_MENU_ICONS = {
+  duplicate:
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>',
+  delete:
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
+};
+
 function showContextMenu(event, index) {
   // Закрываем предыдущее меню, если оно есть
   const existingMenu = document.querySelector('.context-menu');
-  if (existingMenu) document.body.removeChild(existingMenu);
+  if (existingMenu) existingMenu.remove();
 
-  // Создаем контекстное меню
+  // Создаем контекстное меню (оформление — в main.css: .context-menu)
   const contextMenu = document.createElement('div');
   contextMenu.className = 'context-menu';
-  contextMenu.style.position = 'fixed';
   contextMenu.style.left = `${event.clientX}px`;
   contextMenu.style.top = `${event.clientY}px`;
-  contextMenu.style.minWidth = '180px';
-  contextMenu.style.backgroundColor = '#ffffff';
-  contextMenu.style.borderRadius = '6px';
-  contextMenu.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.15)';
-  contextMenu.style.zIndex = '1000';
-  contextMenu.style.overflow = 'hidden';
-  contextMenu.style.fontFamily = "'Segoe UI', Arial, sans-serif";
-  contextMenu.style.fontSize = '14px';
-  contextMenu.style.userSelect = 'none';
 
   // Создаем пункты меню
   const menuItems = [
     {
       text: translations[userLang].duplicate,
+      icon: CONTEXT_MENU_ICONS.duplicate,
       action: () => duplicateFrame(index),
     },
     {
       text: translations[userLang].delete,
+      icon: CONTEXT_MENU_ICONS.delete,
       action: () => deleteFrame(index),
     },
   ];
@@ -262,39 +272,15 @@ function showContextMenu(event, index) {
     const menuItem = document.createElement('div');
     menuItem.className = 'context-menu-item';
     menuItem.innerText = item.text;
-    menuItem.style.padding = '8px 16px';
-    menuItem.style.cursor = 'pointer';
-    menuItem.style.transition = 'background-color 0.2s';
-    menuItem.style.display = 'flex';
-    menuItem.style.alignItems = 'center';
-    menuItem.style.gap = '8px';
 
-    // Hover-эффект
-    menuItem.addEventListener('mouseenter', () => {
-      menuItem.style.backgroundColor = '#f5f5f5';
-    });
-    menuItem.addEventListener('mouseleave', () => {
-      menuItem.style.backgroundColor = 'transparent';
-    });
-
-    // Добавляем иконки (можно заменить на свои)
     const icon = document.createElement('div');
-    icon.style.width = '16px';
-    icon.style.height = '16px';
-    icon.style.backgroundSize = 'contain';
-
-    if (item.text === translations[userLang].duplicate) {
-      icon.style.backgroundImage =
-        'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>\')';
-    } else {
-      icon.style.backgroundImage =
-        'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23444444"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>\')';
-    }
-
+    icon.className = 'context-menu-icon';
+    icon.style.backgroundImage = `url('${item.icon}')`;
     menuItem.prepend(icon);
+
     menuItem.addEventListener('click', () => {
       item.action();
-      document.body.removeChild(contextMenu);
+      contextMenu.remove();
     });
 
     contextMenu.appendChild(menuItem);
@@ -302,9 +288,7 @@ function showContextMenu(event, index) {
 
   // Добавляем разделитель
   const divider = document.createElement('div');
-  divider.style.height = '1px';
-  divider.style.backgroundColor = '#eeeeee';
-  divider.style.margin = '4px 0';
+  divider.className = 'context-menu-divider';
   contextMenu.insertBefore(divider, contextMenu.lastChild);
 
   // Добавляем меню на страницу
@@ -313,7 +297,7 @@ function showContextMenu(event, index) {
   // Закрытие при клике вне меню
   const closeMenu = (e) => {
     if (!contextMenu.contains(e.target)) {
-      document.body.removeChild(contextMenu);
+      contextMenu.remove();
       document.removeEventListener('click', closeMenu);
     }
   };
@@ -337,7 +321,7 @@ function showContextMenu(event, index) {
 
 /*============ ВОСПРОИЗВЕДЕНИЕ АНИМАЦИИ ============*/
 function loadFrame(frame) {
-  customchar = JSON.parse(JSON.stringify(frame));
+  customchar = clone(frame);
   updateAllPixels();
   generateOutput();
 }
@@ -410,32 +394,47 @@ function loadStateFromFile(file) {
     try {
       const state = JSON.parse(event.target.result);
 
-      // Check the version and load accordingly
-      if (isVersionGte(state.version, '0.18.0')) {
-        // Загружаем новое состояние
+      // Проверяем версию и загружаем анимации
+      if (isVersionGte(state.version, '0.18.0') && state.displayAnimations) {
+        if (state.currentConfig) {
+          currentConfig = state.currentConfig;
+        }
         displayAnimations = state.displayAnimations;
-        currentConfig = state.currentConfig;
+        if (!displayAnimations[currentConfig]) {
+          const [cols, rows] = currentConfig.split('x').map(Number);
+          displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
+        }
         cellAnimations = displayAnimations[currentConfig];
       } else {
-        // Старый формат
+        // Старый формат: плоский массив анимаций для текущей конфигурации
         const [cols, rows] = currentConfig.split('x').map(Number);
         displayAnimations[currentConfig] =
           state.cellAnimations || Array.from({ length: rows * cols }, () => []);
         cellAnimations = displayAnimations[currentConfig];
       }
 
-      // Load the remaining common fields
-      customchar = state.customchar;
-      fps = state.fps;
-      savedFrames = state.savedFrames;
-      currentCellIndex = state.currentCellIndex;
+      if (Array.isArray(state.customchar)) customchar = state.customchar;
+      if (Number.isFinite(state.fps)) fps = Math.min(24, Math.max(1, state.fps));
+      if (Array.isArray(state.savedFrames)) savedFrames = state.savedFrames;
 
-      // Update the UI and state
+      const [cols, rows] = currentConfig.split('x').map(Number);
+      if (Number.isInteger(state.currentCellIndex)) {
+        currentCellIndex = Math.min(rows * cols - 1, Math.max(0, state.currentCellIndex));
+      }
+
+      // Синхронизируем интерфейс с загруженным состоянием
+      document.getElementById('fps').value = fps;
+      document.getElementById('fpsValue').innerText = fps;
+      lcdSelect.value = currentConfig;
+      createLcdCells(rows, cols); // создаёт сетку и запускает анимации
+      if (currentCellIndex !== 0) {
+        switchCell(currentCellIndex); // восстанавливаем сохранённую активную ячейку
+      }
+
       updateAllPixels();
       renderSavedFrames();
       calculateMemoryUsage();
       generateOutput();
-      startAllCellsAnimations();
     } catch {
       showErrorAlert('error_load_json');
     }
@@ -482,18 +481,6 @@ function showWarningAlert(message, options = {}) {
   });
 }
 
-function showSoonAlert(message, callback) {
-  Swal.fire({
-    title: translations[userLang].soon_message,
-    icon: 'info',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: translations[userLang].yes,
-    cancelButtonText: translations[userLang].no,
-  });
-}
-
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 $(document).ready(function () {
   applyTranslations();
@@ -513,24 +500,19 @@ $(document).ready(function () {
     else playAnimation();
   });
   $('#save-frame').click(saveFrame);
+  $('#copy-char-btn').click(() => copyToClipboard('codeChar'));
+  $('#copy-arduino-btn').click(() => copyToClipboard('codeArduino'));
   $('#customCharacterLink').click(function () {
     $('#tab-pixel').show();
     $('#tab-code').hide();
-    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link active');
-    document.getElementById('arduinoCodeLink').removeAttribute('class', 'active');
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link');
+    $('#customCharacterLink').addClass('active');
+    $('#arduinoCodeLink').removeClass('active');
   });
   $('#arduinoCodeLink').click(function () {
     $('#tab-code').show();
     $('#tab-pixel').hide();
-    document.getElementById('customCharacterLink').removeAttribute('class', 'active');
-    document.getElementById('customCharacterLink').setAttribute('class', 'nav-link');
-    document.getElementById('arduinoCodeLink').setAttribute('class', 'nav-link active');
-  });
-  $('.dropdown-item[data-lang]').click(function (e) {
-    e.preventDefault();
-    userLang = $(this).data('lang');
-    applyTranslations();
+    $('#customCharacterLink').removeClass('active');
+    $('#arduinoCodeLink').addClass('active');
   });
 });
 
@@ -568,6 +550,8 @@ document.getElementById('load-state').addEventListener('change', function (event
       showErrorAlert('error_load');
     }
   }
+  // Сброс для повторного выбора того же файла
+  event.target.value = '';
 });
 document.getElementById('theme-toggle').addEventListener('click', function () {
   document.body.setAttribute(
@@ -583,31 +567,30 @@ async function copyToClipboard(elementId) {
     await navigator.clipboard.writeText(textToCopy);
     Swal.fire({
       icon: 'success',
-      title: translations[userLang].success || 'Success!',
-      text: translations[userLang].copy_success || 'Text copied to clipboard',
+      title: translations[userLang].success,
+      text: translations[userLang].copy_success,
       timer: 2000,
       showConfirmButton: false,
     });
   } catch (err) {
     Swal.fire({
       icon: 'error',
-      title: translations[userLang].error || 'Error',
-      text: translations[userLang].copy_error || 'Failed to copy text',
+      title: translations[userLang].error,
+      text: translations[userLang].copy_error,
     });
   }
 }
 
-/*============ УПРАВЛЕНИЕ ПРЕЛОАДЕРОМ ============*/
-document.addEventListener('DOMContentLoaded', () => {
+/*============ ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ============*/
+window.addEventListener('DOMContentLoaded', () => {
+  // Скрываем прелоадер
   const preloader = document.getElementById('preloader');
   preloader.classList.add('hidden');
   setTimeout(() => {
     preloader.style.display = 'none';
   }, 500);
-});
 
-// Инициализация дисплея при загрузке
-window.addEventListener('DOMContentLoaded', () => {
+  // Пиксельная сетка и дисплей
   generatePixelGrid(8, 5);
 
   currentConfig = lcdSelect.value; // Например, "16x2"

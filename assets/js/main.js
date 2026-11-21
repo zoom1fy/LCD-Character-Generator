@@ -124,6 +124,7 @@ function calculateMemoryUsage() {
 document.getElementById('fps').addEventListener('input', (event) => {
   fps = Number(event.target.value);
   document.getElementById('fpsValue').innerText = fps;
+  scheduleWorkspaceSave();
   if (animationInterval) {
     stopAnimation();
     playAnimation();
@@ -192,6 +193,7 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 // Синхронизирует кадры текущей ячейки с общим хранилищем анимаций
 function syncCurrentCellFrames() {
   cellAnimations[currentCellIndex] = clone(savedFrames);
+  scheduleWorkspaceSave();
 }
 
 function saveFrame() {
@@ -442,6 +444,7 @@ function onEditorContentChanged() {
     commitEditorToFrame();
   }
   generateOutput();
+  scheduleWorkspaceSave();
 }
 
 function deleteFrame(index) {
@@ -613,20 +616,24 @@ function stopAnimation() {
   document.getElementById('play-animation').innerText = translations[userLang].play_animation;
 }
 
-/*============ СОХРАНЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
-function saveStateToFile() {
-  const state = {
+/*============ СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
+// Полное состояние рабочего пространства — единый формат для JSON-файла и автосохранения
+function buildWorkspaceState() {
+  return {
     version: PROJECT_VERSION,
     customchar,
     fps,
     savedFrames,
     currentCellIndex,
-    displayAnimations, // Save animations for all displays
-    currentConfig, // Save the current configuration
+    displayAnimations, // Анимации для всех конфигураций дисплея
+    currentConfig, // Текущая конфигурация
     memoryPerChar,
     totalMemory,
   };
-  const jsonState = JSON.stringify(state, null, 2);
+}
+
+function saveStateToFile() {
+  const jsonState = JSON.stringify(buildWorkspaceState(), null, 2);
   const blob = new Blob([jsonState], { type: 'application/json' });
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
@@ -656,58 +663,129 @@ function isVersionGte(version, target) {
   return true; // equal
 }
 
+// Проверяем, что конфигурация есть среди доступных в выпадающем списке
+function isValidLcdConfig(config) {
+  return Array.from(lcdSelect.options).some((option) => option.value === config);
+}
+
+// Применяет сохранённое состояние (JSON-файл или localStorage) к рабочему пространству
+function applyWorkspaceState(state) {
+  // Загружаемое состояние полностью заменяет кадры — выходим из редактирования
+  stopEditingFrame();
+
+  // Проверяем версию и загружаем анимации
+  if (isVersionGte(state.version, '0.18.0') && state.displayAnimations) {
+    if (isValidLcdConfig(state.currentConfig)) {
+      currentConfig = state.currentConfig;
+    }
+    displayAnimations = state.displayAnimations;
+    if (!displayAnimations[currentConfig]) {
+      const [cols, rows] = currentConfig.split('x').map(Number);
+      displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
+    }
+    cellAnimations = displayAnimations[currentConfig];
+  } else {
+    // Старый формат: плоский массив анимаций для текущей конфигурации
+    const [cols, rows] = currentConfig.split('x').map(Number);
+    displayAnimations[currentConfig] =
+      state.cellAnimations || Array.from({ length: rows * cols }, () => []);
+    cellAnimations = displayAnimations[currentConfig];
+  }
+
+  if (Number.isFinite(state.fps)) fps = Math.min(24, Math.max(1, state.fps));
+  if (Array.isArray(state.savedFrames)) savedFrames = state.savedFrames;
+
+  const [cols, rows] = currentConfig.split('x').map(Number);
+  // createLcdCells сбрасывает активную ячейку в 0 — индекс храним локально
+  const savedCellIndex = Number.isInteger(state.currentCellIndex)
+    ? Math.min(rows * cols - 1, Math.max(0, state.currentCellIndex))
+    : 0;
+
+  // Синхронизируем интерфейс с загруженным состоянием
+  document.getElementById('fps').value = fps;
+  document.getElementById('fpsValue').innerText = fps;
+  lcdSelect.value = currentConfig;
+  createLcdCells(rows, cols); // создаёт сетку и запускает анимации
+  if (savedCellIndex !== 0) {
+    switchCell(savedCellIndex); // восстанавливаем сохранённую активную ячейку
+  }
+
+  // После switchCell: он загружает в редактор первый кадр активной ячейки
+  if (Array.isArray(state.customchar)) customchar = state.customchar;
+
+  updateAllPixels();
+  renderSavedFrames();
+  calculateMemoryUsage();
+  generateOutput();
+}
+
 function loadStateFromFile(file) {
   const reader = new FileReader();
   reader.onload = function (event) {
     try {
-      const state = JSON.parse(event.target.result);
-
-      // Проверяем версию и загружаем анимации
-      if (isVersionGte(state.version, '0.18.0') && state.displayAnimations) {
-        if (state.currentConfig) {
-          currentConfig = state.currentConfig;
-        }
-        displayAnimations = state.displayAnimations;
-        if (!displayAnimations[currentConfig]) {
-          const [cols, rows] = currentConfig.split('x').map(Number);
-          displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
-        }
-        cellAnimations = displayAnimations[currentConfig];
-      } else {
-        // Старый формат: плоский массив анимаций для текущей конфигурации
-        const [cols, rows] = currentConfig.split('x').map(Number);
-        displayAnimations[currentConfig] =
-          state.cellAnimations || Array.from({ length: rows * cols }, () => []);
-        cellAnimations = displayAnimations[currentConfig];
-      }
-
-      if (Array.isArray(state.customchar)) customchar = state.customchar;
-      if (Number.isFinite(state.fps)) fps = Math.min(24, Math.max(1, state.fps));
-      if (Array.isArray(state.savedFrames)) savedFrames = state.savedFrames;
-
-      const [cols, rows] = currentConfig.split('x').map(Number);
-      if (Number.isInteger(state.currentCellIndex)) {
-        currentCellIndex = Math.min(rows * cols - 1, Math.max(0, state.currentCellIndex));
-      }
-
-      // Синхронизируем интерфейс с загруженным состоянием
-      document.getElementById('fps').value = fps;
-      document.getElementById('fpsValue').innerText = fps;
-      lcdSelect.value = currentConfig;
-      createLcdCells(rows, cols); // создаёт сетку и запускает анимации
-      if (currentCellIndex !== 0) {
-        switchCell(currentCellIndex); // восстанавливаем сохранённую активную ячейку
-      }
-
-      updateAllPixels();
-      renderSavedFrames();
-      calculateMemoryUsage();
-      generateOutput();
+      applyWorkspaceState(JSON.parse(event.target.result));
+      scheduleWorkspaceSave();
     } catch {
       showErrorAlert('error_load_json');
     }
   };
   reader.readAsText(file);
+}
+
+/*============ АВТОСОХРАНЕНИЕ В LOCALSTORAGE ============*/
+const WORKSPACE_STORAGE_KEY = 'workspaceState';
+// Пауза перед записью: изменения идут сериями, пишем один раз на серию
+const WORKSPACE_SAVE_DELAY = 300;
+let workspaceSaveTimer = null;
+
+function saveWorkspaceState() {
+  try {
+    localStorage.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify(buildWorkspaceState()));
+  } catch {
+    /* localStorage может быть недоступен или переполнен */
+  }
+}
+
+// Откладывает запись состояния, чтобы не писать в localStorage на каждый клик
+function scheduleWorkspaceSave() {
+  clearTimeout(workspaceSaveTimer);
+  workspaceSaveTimer = setTimeout(() => {
+    workspaceSaveTimer = null;
+    saveWorkspaceState();
+  }, WORKSPACE_SAVE_DELAY);
+}
+
+// При закрытии страницы дописываем несохранённые изменения
+window.addEventListener('beforeunload', () => {
+  if (workspaceSaveTimer !== null) {
+    clearTimeout(workspaceSaveTimer);
+    workspaceSaveTimer = null;
+    saveWorkspaceState();
+  }
+});
+
+// Восстанавливает состояние из localStorage; false — чистый лист
+function restoreWorkspaceState() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem(WORKSPACE_STORAGE_KEY);
+  } catch {
+    return false;
+  }
+  if (!stored) return false;
+  try {
+    const state = JSON.parse(stored);
+    if (!state || typeof state !== 'object') return false;
+    // Данные пишет сам код — чужой формат считаем повреждённым
+    if (!Array.isArray(state.customchar) || !Array.isArray(state.savedFrames)) return false;
+    if (typeof state.displayAnimations !== 'object' || state.displayAnimations === null) {
+      return false;
+    }
+    applyWorkspaceState(state);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /*============ АЛЕРТЫ ============*/
@@ -755,6 +833,10 @@ function showWarningAlert(message, options = {}) {
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 $(document).ready(function () {
   applyTranslations();
+
+  // Пиксельная сетка нужна до привязки обработчиков и восстановления состояния
+  generatePixelGrid(8, 5);
+
   clear();
   $('#clear').click(function () {
     showConfirmationAlert('confirm_clear', clear);
@@ -785,6 +867,19 @@ $(document).ready(function () {
     $('#customCharacterLink').removeClass('active');
     $('#arduinoCodeLink').addClass('active');
   });
+
+  /* Инициализация дисплея: восстановление или чистый лист (после clear) */
+  if (!restoreWorkspaceState()) {
+    displayAnimations = {};
+    currentConfig = lcdSelect.value; // Например, "16x2"
+    const [cols, rows] = currentConfig.split('x').map(Number);
+
+    // Инициализируем анимации для начальной конфигурации
+    displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
+    cellAnimations = displayAnimations[currentConfig];
+
+    createLcdCells(rows, cols);
+  }
 });
 
 document.getElementById('toggle-pdf-button').addEventListener('click', function () {
@@ -900,22 +995,10 @@ async function copyToClipboard(elementId) {
 
 /*============ ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ============*/
 window.addEventListener('DOMContentLoaded', () => {
-  // Скрываем прелоадер
+  // Прелоадер. Сетку пикселей и дисплей инициализирует $(document).ready
   const preloader = document.getElementById('preloader');
   preloader.classList.add('hidden');
   setTimeout(() => {
     preloader.style.display = 'none';
   }, 500);
-
-  // Пиксельная сетка и дисплей
-  generatePixelGrid(8, 5);
-
-  currentConfig = lcdSelect.value; // Например, "16x2"
-  const [cols, rows] = currentConfig.split('x').map(Number);
-
-  // Инициализируем анимации для начальной конфигурации
-  displayAnimations[currentConfig] = Array.from({ length: rows * cols }, () => []);
-  cellAnimations = displayAnimations[currentConfig];
-
-  createLcdCells(rows, cols);
 });

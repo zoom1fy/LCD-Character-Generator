@@ -69,6 +69,7 @@ lcdSelect.addEventListener('change', (event) => {
   // Создаём ячейки для нового дисплея
   const [cols, rows] = newConfig.split('x').map(Number);
   createLcdCells(rows, cols);
+  scheduleWorkspaceSave();
 });
 
 function switchCell(index) {

@@ -11,6 +11,7 @@ LCD Character Generator is a web-based tool that allows you to create custom cha
 - **Drag & Drop Reordering**: Reorder frames with clear visual feedback (drop indicator, frame numbers).
 - **Animation Control**: Play and stop animations with adjustable FPS.
 - **Memory Usage Tracking**: Monitor the memory usage of saved frames.
+- **Auto-save**: The workspace (pixel editor, frames, animations, FPS, display configuration) is automatically saved to the browser's localStorage and restored on page reload.
 
 ## Acknowledgments
 The project is based on the LCD character generator by Omer Kilic (`omerk`):

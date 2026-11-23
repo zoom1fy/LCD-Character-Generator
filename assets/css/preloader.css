@@ -25,7 +25,11 @@
     width: 60px;
     height: 60px;
     position: relative;
-    animation: rotate 1.5s linear infinite;
+
+    /* Движение — только если пользователь не просил его уменьшить */
+    @media (prefers-reduced-motion: no-preference) {
+        animation: rotate 1.5s linear infinite;
+    }
 }
 
 .spinner::before,
@@ -36,11 +40,16 @@
     inset: 0;
     box-shadow: 0 0 12px var(--spinner-color);
     background: radial-gradient(circle at center, var(--spinner-color), transparent 70%);
-    animation: pulse 1.2s infinite ease-in-out;
+
+    @media (prefers-reduced-motion: no-preference) {
+        animation: pulse 1.2s infinite ease-in-out;
+    }
 }
 
 .spinner::after {
-    animation-delay: -0.6s;
+    @media (prefers-reduced-motion: no-preference) {
+        animation-delay: -0.6s;
+    }
 }
 
 @keyframes rotate {
@@ -68,9 +77,12 @@
     font-size: 1.2rem;
     color: var(--text-color);
     font-family: "Segoe UI", sans-serif;
-    animation: fadeIn 0.1s ease-in-out;
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+
+    @media (prefers-reduced-motion: no-preference) {
+        animation: fadeIn 0.1s ease-in-out;
+    }
 }
 
 @keyframes fadeIn {

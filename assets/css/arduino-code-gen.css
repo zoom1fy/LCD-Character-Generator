@@ -2,15 +2,19 @@
    Стили для вкладки Arduino Code
    ========================================================================== */
 #tab-code {
-    display: flex;
-    flex-direction: column;
     min-height: calc(100vh - 200px);
     /* Учитываем высоту футера (~120px) и навбара (~80px) */
     padding: 20px;
     box-sizing: border-box;
 }
 
-#tab-code>h3,
+/* display только у видимой панели: иначе #id перебивает [hidden] */
+#tab-code:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+}
+
+#tab-code>h2,
 #tab-code .row.mb-3,
 #tab-code .code-header {
     flex: 0 0 auto;
@@ -87,7 +91,7 @@
         gap: 8px;
     }
 
-    #tab-code .code-header h4 {
+    #tab-code .code-header h3 {
         font-size: 16px;
     }
 

@@ -57,7 +57,19 @@ const translations = {
     frames_hint:
       'Click a frame to edit it. Drag frames to reorder. Right-click a frame for options.',
     frame_tooltip: 'Frame {0}: click to edit, drag to reorder, right-click for menu',
-    no_frames: 'No frames yet. Draw a character and click "Save Frame".'
+    frame_label: 'Frame {0}',
+    no_frames: 'No frames yet. Draw a character and click "Save Frame".',
+    sections: 'Main sections',
+    skip_to_content: 'Skip to content',
+    switch_to_dark: 'Switch to dark theme',
+    switch_to_light: 'Switch to light theme',
+    pixel_label: 'Pixel {0}, {1}',
+    display_config: 'Display configuration',
+    lcd_cells_label: 'LCD display cells',
+    lcd_cell_label: 'LCD cell {0}',
+    character_bytes: 'Generated character bytes',
+    frame_actions: 'Frame actions',
+    toggle_navigation: 'Toggle navigation'
   },
   ru: {
     title: 'Генератор символов LCD',
@@ -117,6 +129,18 @@ const translations = {
       'Клик по кадру — редактирование. Перетащите кадр, чтобы изменить порядок. Правый клик — меню.',
     frame_tooltip:
       'Кадр {0}: клик — редактировать, перетащить — порядок, правый клик — меню',
+    frame_label: 'Кадр {0}',
     no_frames: 'Кадров пока нет. Нарисуйте символ и нажмите «Сохранить кадр».',
+    sections: 'Основные разделы',
+    skip_to_content: 'Перейти к содержимому',
+    switch_to_dark: 'Включить тёмную тему',
+    switch_to_light: 'Включить светлую тему',
+    pixel_label: 'Пиксель {0}, {1}',
+    display_config: 'Конфигурация дисплея',
+    lcd_cells_label: 'Ячейки LCD-дисплея',
+    lcd_cell_label: 'Ячейка LCD {0}',
+    character_bytes: 'Байты сгенерированного символа',
+    frame_actions: 'Действия с кадром',
+    toggle_navigation: 'Переключить навигацию',
   },
 };

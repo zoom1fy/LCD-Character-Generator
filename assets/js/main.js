@@ -2,51 +2,117 @@ const PROJECT_VERSION = '0.20.0';
 
 /*============ ТЕМА ОФОРМЛЕНИЯ ============*/
 const THEME_STORAGE_KEY = 'theme';
+const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+
+// Определение языка
+let userLang = (navigator.language || navigator.userLanguage || 'en').startsWith('ru')
+  ? 'ru'
+  : 'en';
+
+function systemTheme() {
+  return themeMedia.matches ? 'dark' : 'light';
+}
+
+// null — пользователь не переопределял тему, следуем системной
+function storedTheme() {
+  try {
+    const value = localStorage.getItem(THEME_STORAGE_KEY);
+    return value === 'light' || value === 'dark' ? value : null;
+  } catch {
+    return null;
+  }
+}
 
 function getTheme() {
   return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }
 
+// data-theme управляет CSS-переменными, meta — нативными контролами и color-scheme
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  // Синхронизируем тему Bootstrap
   document.documentElement.setAttribute('data-bs-theme', theme);
+  if (colorSchemeMeta) colorSchemeMeta.content = storedTheme() ?? 'light dark';
+}
+
+function setThemeOverride(theme) {
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    if (theme) localStorage.setItem(THEME_STORAGE_KEY, theme);
+    else localStorage.removeItem(THEME_STORAGE_KEY);
   } catch {
     /* localStorage может быть недоступен */
   }
+  applyTheme(theme ?? systemTheme());
 }
 
-// Применяем текущую тему при загрузке
-applyTheme(getTheme());
+// Два состояния: «системная» (значения нет) и явное переопределение.
+// Снятие переопределения возвращает сайт к системной теме, а не фиксирует её.
+function toggleTheme() {
+  const target = getTheme() === 'dark' ? 'light' : 'dark';
+  setThemeOverride(target === systemTheme() ? null : target);
+}
 
-// Определение языка
-let userLang = (navigator.language || navigator.userLanguage).startsWith('ru') ? 'ru' : 'en';
+function updateThemeToggleLabel() {
+  const button = document.getElementById('theme-toggle');
+  if (!button) return;
+  const key = getTheme() === 'dark' ? 'switch_to_light' : 'switch_to_dark';
+  button.setAttribute('aria-label', translations[userLang][key]);
+}
+
+// Применяем сохранённую или системную тему при загрузке
+applyTheme(storedTheme() ?? systemTheme());
 
 // Функция для применения переводов
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach((element) => {
     const key = element.getAttribute('data-i18n');
     if (key === 'remaining_memory') {
-      element.innerText = translations[userLang][key].replace('{0}', remainingMemory);
+      element.textContent = translations[userLang][key].replace('{0}', remainingMemory);
     } else if (key === 'editing_frame') {
-      element.innerText = translations[userLang].editing_frame.replace(
+      element.textContent = translations[userLang].editing_frame.replace(
         '{0}',
         editingFrameIndex === null ? '' : editingFrameIndex + 1
       );
     } else {
-      element.innerText = translations[userLang][key];
+      element.textContent = translations[userLang][key];
     }
   });
+
+  // Доступные имена, которые не являются текстом элемента
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+    const key = element.getAttribute('data-i18n-aria-label');
+    element.setAttribute('aria-label', translations[userLang][key]);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach((element) => {
+    const key = element.getAttribute('data-i18n-title');
+    element.setAttribute('title', translations[userLang][key]);
+  });
+
+  // Динамические подписи пикселей и ячеек LCD
+  document.querySelectorAll('.pixel').forEach((pixel) => {
+    pixel.setAttribute(
+      'aria-label',
+      translations[userLang].pixel_label
+        .replace('{0}', Number(pixel.dataset.row) + 1)
+        .replace('{1}', Number(pixel.dataset.col) + 1)
+    );
+  });
+  document.querySelectorAll('.lcd-cell').forEach((cell) => {
+    cell.setAttribute(
+      'aria-label',
+      translations[userLang].lcd_cell_label.replace('{0}', Number(cell.dataset.index) + 1)
+    );
+  });
+
   document.title = translations[userLang].title;
   document.documentElement.lang = userLang;
+  updateThemeToggleLabel();
   if (animationInterval) {
-    document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
+    document.getElementById('play-animation').textContent = translations[userLang].stop_animation;
   }
   const pdfBut = document.getElementById('toggle-pdf-button');
   if (pdfBut.hasAttribute('data-status')) {
-    pdfBut.innerText = translations[userLang].close;
+    pdfBut.textContent = translations[userLang].close;
   }
   updateLanguageDropdown();
 }
@@ -54,7 +120,7 @@ function applyTranslations() {
 // Обновление подписи текущего языка в дропдауне
 function updateLanguageDropdown() {
   const currentLangSpan = document.getElementById('current-language');
-  currentLangSpan.innerText = translations[userLang][`lang_${userLang}`];
+  currentLangSpan.textContent = translations[userLang][`lang_${userLang}`];
 }
 
 // Обработчики выбора языка
@@ -91,7 +157,7 @@ let remainingMemory = totalMemory; // Оставшаяся память для �
 
 function generatePixelGrid(rows = 8, cols = 5) {
   const gridContainer = document.getElementById('pixel-grid');
-  gridContainer.innerHTML = ''; // Очищаем контейнер
+  gridContainer.replaceChildren(); // Очищаем контейнер
 
   for (let row = 0; row < rows; row++) {
     // Ряд пикселей (зазоры задаёт CSS gap)
@@ -99,10 +165,18 @@ function generatePixelGrid(rows = 8, cols = 5) {
     rowEl.className = 'pixel-row';
 
     for (let col = 0; col < cols; col++) {
-      // Создаём canvas-элемент
-      const pixel = document.createElement('canvas');
+      // Кнопка вместо canvas: пиксель доступен с клавиатуры «из коробки»
+      const pixel = document.createElement('button');
+      pixel.type = 'button';
       pixel.id = `pixel-${row}-${col}`;
       pixel.className = 'pixel off';
+      pixel.dataset.row = row;
+      pixel.dataset.col = col;
+      pixel.setAttribute('aria-pressed', 'false');
+      pixel.setAttribute(
+        'aria-label',
+        translations[userLang].pixel_label.replace('{0}', row + 1).replace('{1}', col + 1)
+      );
 
       rowEl.appendChild(pixel);
     }
@@ -115,7 +189,7 @@ function generatePixelGrid(rows = 8, cols = 5) {
 function calculateMemoryUsage() {
   const usedMemory = savedFrames.length * memoryPerChar;
   remainingMemory = totalMemory - usedMemory;
-  document.getElementById('memory-status').innerText = translations[
+  document.getElementById('memory-status').textContent = translations[
     userLang
   ].remaining_memory.replace('{0}', remainingMemory);
 }
@@ -123,7 +197,7 @@ function calculateMemoryUsage() {
 /*============ ОБРАБОТЧИКИ СОБЫТИЙ И ИЗМЕНЕНИЯ FPS ============*/
 document.getElementById('fps').addEventListener('input', (event) => {
   fps = Number(event.target.value);
-  document.getElementById('fpsValue').innerText = fps;
+  document.getElementById('fpsValue').textContent = fps;
   scheduleWorkspaceSave();
   if (animationInterval) {
     stopAnimation();
@@ -134,16 +208,22 @@ document.getElementById('fps').addEventListener('input', (event) => {
 /*============ ОЧИСТКА И ОБНОВЛЕНИЕ ПИКСЕЛЕЙ ============*/
 function clear() {
   customchar.forEach((row) => row.fill(0));
-  $('.pixel').removeClass('on').addClass('off');
+  updateAllPixels();
   onEditorContentChanged();
   calculateMemoryUsage();
 }
 
+function setPixelState(pixel, isOn) {
+  pixel.classList.toggle('on', isOn);
+  pixel.classList.toggle('off', !isOn);
+  pixel.setAttribute('aria-pressed', String(isOn));
+}
+
 function togglePixel(pixel) {
-  const [row, column] = pixel.id.split('-').slice(1).map(Number);
+  const row = Number(pixel.dataset.row);
+  const column = Number(pixel.dataset.col);
   const isOn = pixel.classList.contains('on');
-  pixel.classList.toggle('on', !isOn);
-  pixel.classList.toggle('off', isOn);
+  setPixelState(pixel, !isOn);
   customchar[row][column] = isOn ? 0 : 1;
 }
 
@@ -151,8 +231,7 @@ function updateAllPixels() {
   customchar.forEach((row, i) => {
     row.forEach((val, j) => {
       const pixel = document.getElementById(`pixel-${i}-${j}`);
-      pixel.classList.toggle('on', val === 1);
-      pixel.classList.toggle('off', val === 0);
+      setPixelState(pixel, val === 1);
     });
   });
 }
@@ -188,7 +267,7 @@ let dropIndicator = null;
 
 const framesContainerEl = document.querySelector('#savedFrames .frames-container');
 
-const clone = (value) => JSON.parse(JSON.stringify(value));
+const clone = (value) => structuredClone(value);
 
 // Синхронизирует кадры текущей ячейки с общим хранилищем анимаций
 function syncCurrentCellFrames() {
@@ -224,33 +303,46 @@ function drawFrameToCanvas(canvas, frame) {
 }
 
 function renderSavedFrames() {
+  // Перерисовка не должна выбрасывать фокус из списка кадров
+  const focusedFrame = document.activeElement?.closest?.('.frame-wrapper');
+  const focusedIndex = focusedFrame ? Number(focusedFrame.dataset.index) : null;
+
   // Очищаем только контейнер кадров, не трогая заголовок
   removeDropIndicator();
-  framesContainerEl.innerHTML = '';
+  framesContainerEl.replaceChildren();
 
   if (savedFrames.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'frames-empty';
-    empty.innerText = translations[userLang].no_frames;
+    empty.textContent = translations[userLang].no_frames;
     framesContainerEl.appendChild(empty);
     return;
   }
 
   savedFrames.forEach((frame, index) => {
-    // Обёртка — перетаскиваемый элемент, канвас — только картинка
+    // Обёртка — перетаскиваемый элемент с ролью кнопки.
+    // div, а не <button>: в Safari перетаскивание кнопок через draggable не работает.
     const wrapper = document.createElement('div');
     wrapper.className = 'frame-wrapper';
+    wrapper.setAttribute('role', 'button');
+    wrapper.tabIndex = 0;
     if (index === editingFrameIndex) {
       wrapper.classList.add('editing');
     }
     wrapper.dataset.index = index;
     wrapper.draggable = true;
+    wrapper.setAttribute('aria-pressed', String(index === editingFrameIndex));
+    wrapper.setAttribute(
+      'aria-label',
+      translations[userLang].frame_label.replace('{0}', index + 1)
+    );
     wrapper.title = translations[userLang].frame_tooltip.replace('{0}', index + 1);
 
     // Номер кадра — наглядный порядок в анимации
     const number = document.createElement('span');
     number.className = 'frame-number';
-    number.innerText = index + 1;
+    number.setAttribute('aria-hidden', 'true');
+    number.textContent = index + 1;
 
     const canvas = document.createElement('canvas');
     canvas.width = 50;
@@ -265,7 +357,25 @@ function renderSavedFrames() {
     wrapper.addEventListener('click', () => toggleEditFrame(index));
     wrapper.addEventListener('contextmenu', (event) => {
       event.preventDefault();
-      showContextMenu(event, index);
+      showContextMenu(event, index, wrapper);
+    });
+    // Клавиатура для role="button": Enter — keydown, Space — keyup (как у <button>)
+    wrapper.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        toggleEditFrame(index);
+      } else if (event.key === ' ') {
+        event.preventDefault();
+      } else if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+        event.preventDefault();
+        const rect = wrapper.getBoundingClientRect();
+        showContextMenu({ clientX: rect.left + rect.width, clientY: rect.bottom }, index, wrapper);
+      }
+    });
+    wrapper.addEventListener('keyup', (event) => {
+      if (event.key !== ' ') return;
+      event.preventDefault();
+      toggleEditFrame(index);
     });
 
     wrapper.addEventListener('dragstart', (event) => {
@@ -283,6 +393,13 @@ function renderSavedFrames() {
 
     framesContainerEl.appendChild(wrapper);
   });
+
+  if (focusedIndex !== null) {
+    const restored = framesContainerEl.querySelector(
+      `.frame-wrapper[data-index="${focusedIndex}"]`
+    );
+    if (restored) restored.focus({ preventScroll: true });
+  }
 }
 
 /*============ ПЕРЕТАСКИВАНИЕ КАДРОВ ============*/
@@ -397,7 +514,7 @@ function updateEditingStatus() {
   if (editingFrameIndex === null) {
     statusEl.hidden = true;
   } else {
-    labelEl.innerText = translations[userLang].editing_frame.replace(
+    labelEl.textContent = translations[userLang].editing_frame.replace(
       '{0}',
       editingFrameIndex + 1
     );
@@ -495,14 +612,49 @@ function getContextMenuIcons() {
   };
 }
 
-function showContextMenu(event, index) {
+let contextMenuEl = null;
+let contextMenuTrigger = null;
+let contextMenuIndex = -1;
+let contextMenuOutsideHandler = null;
+
+function focusFrameOrFallback(index) {
+  const target = framesContainerEl.querySelector(
+    `.frame-wrapper[data-index="${Math.max(0, Math.min(index, savedFrames.length - 1))}"]`
+  );
+  if (target) target.focus({ preventScroll: true });
+  else document.getElementById('save-frame').focus({ preventScroll: true });
+}
+
+function closeContextMenu({ restoreFocus = true } = {}) {
+  if (!contextMenuEl) return;
+  const menu = contextMenuEl;
+  const trigger = contextMenuTrigger;
+  const index = contextMenuIndex;
+
+  contextMenuEl = null;
+  contextMenuTrigger = null;
+  contextMenuIndex = -1;
+  if (contextMenuOutsideHandler) {
+    document.removeEventListener('pointerdown', contextMenuOutsideHandler, true);
+    contextMenuOutsideHandler = null;
+  }
+  menu.remove();
+
+  if (restoreFocus) {
+    if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    else focusFrameOrFallback(index);
+  }
+}
+
+function showContextMenu(event, index, trigger = null) {
   // Закрываем предыдущее меню, если оно есть
-  const existingMenu = document.querySelector('.context-menu');
-  if (existingMenu) existingMenu.remove();
+  closeContextMenu({ restoreFocus: false });
 
   // Создаем контекстное меню (оформление — в main.css: .context-menu)
   const contextMenu = document.createElement('div');
   contextMenu.className = 'context-menu';
+  contextMenu.setAttribute('role', 'menu');
+  contextMenu.setAttribute('aria-label', translations[userLang].frame_actions);
   contextMenu.style.left = `${event.clientX}px`;
   contextMenu.style.top = `${event.clientY}px`;
 
@@ -538,53 +690,87 @@ function showContextMenu(event, index) {
   ];
 
   menuItems.forEach((item) => {
-    const menuItem = document.createElement('div');
+    const menuItem = document.createElement('button');
+    menuItem.type = 'button';
     menuItem.className = 'context-menu-item';
-    menuItem.innerText = item.text;
+    menuItem.setAttribute('role', 'menuitem');
 
-    const icon = document.createElement('div');
+    const icon = document.createElement('span');
     icon.className = 'context-menu-icon';
+    icon.setAttribute('aria-hidden', 'true');
     icon.style.backgroundImage = `url('${item.icon}')`;
-    menuItem.prepend(icon);
+
+    const label = document.createElement('span');
+    label.textContent = item.text;
+
+    menuItem.append(icon, label);
 
     menuItem.addEventListener('click', () => {
+      closeContextMenu({ restoreFocus: false });
       item.action();
-      contextMenu.remove();
+      focusFrameOrFallback(index);
     });
 
     contextMenu.appendChild(menuItem);
   });
 
-  // Добавляем разделитель
+  // Добавляем разделитель (перед последним пунктом — «Удалить»)
   const divider = document.createElement('div');
   divider.className = 'context-menu-divider';
+  divider.setAttribute('role', 'separator');
   contextMenu.insertBefore(divider, contextMenu.lastChild);
 
   // Добавляем меню на страницу
   document.body.appendChild(contextMenu);
 
-  // Закрытие при клике вне меню
-  const closeMenu = (e) => {
-    if (!contextMenu.contains(e.target)) {
-      contextMenu.remove();
-      document.removeEventListener('click', closeMenu);
+  // Клавиатурная навигация внутри меню
+  contextMenu.addEventListener('keydown', (e) => {
+    const items = Array.from(contextMenu.querySelectorAll('.context-menu-item'));
+    const current = items.indexOf(document.activeElement);
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeContextMenu();
+      return;
     }
-  };
+    if (e.key === 'Tab') {
+      // Возвращаем фокус на кадр, дальше браузер продолжит обычный порядок Tab
+      closeContextMenu();
+      return;
+    }
 
-  document.addEventListener('click', closeMenu);
+    let next = null;
+    if (e.key === 'ArrowDown') next = (current + 1) % items.length;
+    else if (e.key === 'ArrowUp') next = (current - 1 + items.length) % items.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    if (next === null) return;
 
-  // Предотвращаем закрытие при клике внутри меню
-  contextMenu.addEventListener('click', (e) => {
-    e.stopPropagation();
+    e.preventDefault();
+    items[next].focus();
   });
+
+  // Закрытие при клике/тапе вне меню (фокус остаётся там, куда кликнули)
+  contextMenuOutsideHandler = (e) => {
+    if (!contextMenu.contains(e.target)) closeContextMenu({ restoreFocus: false });
+  };
+  document.addEventListener('pointerdown', contextMenuOutsideHandler, true);
+
+  contextMenuEl = contextMenu;
+  contextMenuTrigger = trigger;
+  contextMenuIndex = index;
+
+  // Фокус на первый пункт — меню доступно сразу с клавиатуры
+  contextMenu.querySelector('.context-menu-item')?.focus({ preventScroll: true });
 
   // Корректировка позиции, если меню выходит за границы экрана
   const rect = contextMenu.getBoundingClientRect();
   if (rect.right > window.innerWidth) {
-    contextMenu.style.left = `${window.innerWidth - rect.width - 5}px`;
+    contextMenu.style.left = `${Math.max(5, window.innerWidth - rect.width - 5)}px`;
   }
   if (rect.bottom > window.innerHeight) {
-    contextMenu.style.top = `${window.innerHeight - rect.height - 5}px`;
+    contextMenu.style.top = `${Math.max(5, window.innerHeight - rect.height - 5)}px`;
   }
 }
 
@@ -601,7 +787,7 @@ function playAnimation() {
   if (savedFrames.length === 0) return;
   // Просмотр анимации и редактирование кадра несовместимы
   stopEditingFrame();
-  document.getElementById('play-animation').innerText = translations[userLang].stop_animation;
+  document.getElementById('play-animation').textContent = translations[userLang].stop_animation;
   currentFrameIndex = 0;
   const interval = 1000 / fps;
   animationInterval = setInterval(() => {
@@ -613,7 +799,7 @@ function playAnimation() {
 function stopAnimation() {
   clearInterval(animationInterval);
   animationInterval = null;
-  document.getElementById('play-animation').innerText = translations[userLang].play_animation;
+  document.getElementById('play-animation').textContent = translations[userLang].play_animation;
 }
 
 /*============ СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ РАБОЧЕГО ПРОСТРАНСТВА ============*/
@@ -650,6 +836,8 @@ function saveStateToFile() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  // Освобождаем blob: иначе память остаётся занятой до перезагрузки страницы
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function isVersionGte(version, target) {
@@ -703,7 +891,7 @@ function applyWorkspaceState(state) {
 
   // Синхронизируем интерфейс с загруженным состоянием
   document.getElementById('fps').value = fps;
-  document.getElementById('fpsValue').innerText = fps;
+  document.getElementById('fpsValue').textContent = fps;
   lcdSelect.value = currentConfig;
   createLcdCells(rows, cols); // создаёт сетку и запускает анимации
   if (savedCellIndex !== 0) {
@@ -755,13 +943,18 @@ function scheduleWorkspaceSave() {
   }, WORKSPACE_SAVE_DELAY);
 }
 
-// При закрытии страницы дописываем несохранённые изменения
-window.addEventListener('beforeunload', () => {
-  if (workspaceSaveTimer !== null) {
-    clearTimeout(workspaceSaveTimer);
-    workspaceSaveTimer = null;
-    saveWorkspaceState();
-  }
+// При уходе со страницы дописываем несохранённые изменения.
+// pagehide/visibilitychange не блокируют bfcache, в отличие от beforeunload.
+function flushWorkspaceSave() {
+  if (workspaceSaveTimer === null) return;
+  clearTimeout(workspaceSaveTimer);
+  workspaceSaveTimer = null;
+  saveWorkspaceState();
+}
+
+window.addEventListener('pagehide', flushWorkspaceSave);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushWorkspaceSave();
 });
 
 // Восстанавливает состояние из localStorage; false — чистый лист
@@ -788,6 +981,48 @@ function restoreWorkspaceState() {
   }
 }
 
+/*============ ВКЛАДКИ ============*/
+const tabButtons = Array.from(document.querySelectorAll('[role="tab"]'));
+const tabList = document.querySelector('[role="tablist"]');
+
+// Выбор вкладки: aria-selected, tabindex и видимость панели меняются вместе
+function activateTab(tab, { focus = false } = {}) {
+  tabButtons.forEach((item) => {
+    const selected = item === tab;
+    item.setAttribute('aria-selected', String(selected));
+    item.tabIndex = selected ? 0 : -1;
+    item.classList.toggle('active', selected);
+
+    const panel = document.getElementById(item.getAttribute('aria-controls'));
+    if (!panel) return;
+    panel.classList.toggle('active', selected);
+    panel.classList.toggle('show', selected);
+    panel.hidden = !selected;
+  });
+  if (focus) tab.focus();
+}
+
+tabButtons.forEach((tab) => {
+  tab.addEventListener('click', () => activateTab(tab));
+});
+
+// Стрелки/Home/End — стандартное поведение tablist
+tabList?.addEventListener('keydown', (event) => {
+  const current = event.target.closest('[role="tab"]');
+  if (!current) return;
+
+  const index = tabButtons.indexOf(current);
+  let next = null;
+  if (event.key === 'ArrowRight') next = (index + 1) % tabButtons.length;
+  else if (event.key === 'ArrowLeft') next = (index - 1 + tabButtons.length) % tabButtons.length;
+  else if (event.key === 'Home') next = 0;
+  else if (event.key === 'End') next = tabButtons.length - 1;
+  if (next === null) return;
+
+  event.preventDefault();
+  activateTab(tabButtons[next], { focus: true });
+});
+
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 $(document).ready(function () {
   applyTranslations();
@@ -813,18 +1048,6 @@ $(document).ready(function () {
   $('#save-frame').click(saveFrame);
   $('#copy-char-btn').click(() => copyToClipboard('codeChar'));
   $('#copy-arduino-btn').click(() => copyToClipboard('codeArduino'));
-  $('#customCharacterLink').click(function () {
-    $('#tab-pixel').show();
-    $('#tab-code').hide();
-    $('#customCharacterLink').addClass('active');
-    $('#arduinoCodeLink').removeClass('active');
-  });
-  $('#arduinoCodeLink').click(function () {
-    $('#tab-code').show();
-    $('#tab-pixel').hide();
-    $('#customCharacterLink').removeClass('active');
-    $('#arduinoCodeLink').addClass('active');
-  });
 
   /* Инициализация дисплея: восстановление или чистый лист (после clear) */
   if (!restoreWorkspaceState()) {
@@ -845,14 +1068,19 @@ document.getElementById('toggle-pdf-button').addEventListener('click', function 
   const pdfBut = document.getElementById('toggle-pdf-button');
   if (pdfBut.hasAttribute('data-status')) {
     pdfBut.removeAttribute('data-status');
+    pdfBut.setAttribute('aria-expanded', 'false');
     pdfPanel.classList.remove('open');
     pdfBut.classList.remove('open');
-    pdfBut.innerText = translations[userLang].symbols_table;
+    // Закрытая панель не должна оставаться в порядке Tab
+    pdfPanel.inert = true;
+    pdfBut.textContent = translations[userLang].symbols_table;
   } else {
     pdfBut.setAttribute('data-status', 'active');
+    pdfBut.setAttribute('aria-expanded', 'true');
     pdfPanel.classList.add('open');
     pdfBut.classList.add('open');
-    pdfBut.innerText = translations[userLang].close;
+    pdfPanel.inert = false;
+    pdfBut.textContent = translations[userLang].close;
   }
 });
 
@@ -878,8 +1106,26 @@ document.getElementById('load-state').addEventListener('change', function (event
   event.target.value = '';
 });
 document.getElementById('theme-toggle').addEventListener('click', function () {
-  applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+  toggleTheme();
+  updateThemeToggleLabel();
   // Перерисовываем миниатюры кадров в цветах новой темы
+  renderSavedFrames();
+});
+
+// Системная тема сменилась (например, по расписанию ОС) — следуем ей,
+// если пользователь не зафиксировал тему вручную
+themeMedia.addEventListener('change', () => {
+  if (storedTheme()) return;
+  applyTheme(systemTheme());
+  updateThemeToggleLabel();
+  renderSavedFrames();
+});
+
+// Тема изменена в другой вкладке
+window.addEventListener('storage', (event) => {
+  if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
+  applyTheme(storedTheme() ?? systemTheme());
+  updateThemeToggleLabel();
   renderSavedFrames();
 });
 
@@ -890,11 +1136,15 @@ framesContainerEl.addEventListener('drop', onFramesDrop);
 
 document.getElementById('stop-editing-btn').addEventListener('click', stopEditingFrame);
 
-// Esc — быстрый выход из режима редактирования кадра
+// Esc — сначала закрывает контекстное меню, затем выходит из режима редактирования кадра
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    stopEditingFrame();
+  if (event.key !== 'Escape') return;
+  if (contextMenuEl) {
+    event.preventDefault();
+    closeContextMenu();
+    return;
   }
+  stopEditingFrame();
 });
 
 async function copyToClipboard(elementId) {

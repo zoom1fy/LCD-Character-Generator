@@ -2,25 +2,33 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Design custom characters for HD44780 LCD modules, preview animations and generate Arduino code."
+    />
     <title>Custom Character Generator for HD44780 LCD Modules</title>
-    <!-- Инициализация темы до отрисовки страницы -->
+    <!-- Инициализация темы до отрисовки страницы (только для предотвращения FOUC) -->
     <script>
       (function () {
         var stored = null;
         try {
           stored = localStorage.getItem('theme');
         } catch (e) {}
-        var theme =
-          stored === 'light' || stored === 'dark'
-            ? stored
-            : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light';
+        var hasOverride = stored === 'light' || stored === 'dark';
+        var system =
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        var theme = hasOverride ? stored : system;
+        // meta[name="color-scheme"] — источник истины для нативных контролов и CSS color-scheme
+        var meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = hasOverride ? stored : 'light dark';
         document.documentElement.setAttribute('data-theme', theme);
         document.documentElement.setAttribute('data-bs-theme', theme);
       })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="assets/css/preloader.css" rel="stylesheet" />
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
     <link href="assets/css/bootstrap-icons.css" rel="stylesheet" />
@@ -34,6 +42,8 @@
   </head>
 
   <body>
+    <a class="skip-link" href="#main" data-i18n="skip_to_content">Skip to content</a>
+
     <div id="preloader">
       <div class="spinner"></div>
       <p class="loading-text" data-i18n="loading">Loading...</p>
@@ -54,22 +64,45 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
+          aria-label="Toggle navigation"
+          data-i18n-aria-label="toggle_navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <!-- Основное содержимое навбара -->
         <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link active" id="customCharacterLink"
-                ><span data-i18n="custom_character">Custom Character</span></a
+          <ul
+            class="navbar-nav me-auto"
+            role="tablist"
+            aria-label="Main sections"
+            data-i18n-aria-label="sections"
+          >
+            <li class="nav-item" role="presentation">
+              <button
+                type="button"
+                class="nav-link active"
+                id="customCharacterLink"
+                role="tab"
+                aria-selected="true"
+                aria-controls="tab-pixel"
               >
+                <span data-i18n="custom_character">Custom Character</span>
+              </button>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" id="arduinoCodeLink"
-                ><span data-i18n="arduino_code">Arduino Code</span></a
+            <li class="nav-item" role="presentation">
+              <button
+                type="button"
+                class="nav-link"
+                id="arduinoCodeLink"
+                role="tab"
+                aria-selected="false"
+                aria-controls="tab-code"
+                tabindex="-1"
               >
+                <span data-i18n="arduino_code">Arduino Code</span>
+              </button>
             </li>
           </ul>
 
@@ -114,23 +147,29 @@
               id="theme-toggle"
               class="theme-toggle-button"
               type="button"
-              aria-label="Toggle theme"
+              aria-label="Switch to dark theme"
             >
-              <span class="icon moon"><i class="bi bi-moon"></i></span>
-              <span class="icon sun"><i class="bi bi-sun"></i></span>
+              <span class="icon moon" aria-hidden="true"><i class="bi bi-moon"></i></span>
+              <span class="icon sun" aria-hidden="true"><i class="bi bi-sun"></i></span>
             </button>
           </div>
         </div>
       </div>
     </nav>
 
-    <div class="container">
+    <main class="container" id="main" tabindex="-1">
+      <h1 class="visually-hidden" data-i18n="title">LCD Character Generator</h1>
       <div class="row">
         <div class="col-md-12">
           <!-- Tab Content -->
           <div class="tab-content">
             <!-- Custom Character Tab -->
-            <div class="tab-pane fade show active" id="tab-pixel" role="tabpanel">
+            <div
+              class="tab-pane fade show active"
+              id="tab-pixel"
+              role="tabpanel"
+              aria-labelledby="customCharacterLink"
+            >
               <div class="workspace">
                 <!-- Верхний ряд: редактор | живой предпросмотр | код -->
                 <div class="workspace-main">
@@ -178,12 +217,22 @@
                   <section id="lcd-panel" class="panel">
                     <div class="lcd-panel-header">
                       <h3 data-i18n="preview">LCD Preview</h3>
-                      <select id="lcd-select">
+                      <select
+                        id="lcd-select"
+                        aria-label="Display configuration"
+                        data-i18n-aria-label="display_config"
+                      >
                         <option value="16x2">16x2</option>
                         <option value="20x4">20x4</option>
                       </select>
                     </div>
-                    <div id="lcd-display" class="lcd-display">
+                    <div
+                      id="lcd-display"
+                      class="lcd-display"
+                      role="radiogroup"
+                      aria-label="LCD display cells"
+                      data-i18n-aria-label="lcd_cells_label"
+                    >
                       <!-- Ячейки динамически создаются в JS -->
                     </div>
                   </section>
@@ -206,6 +255,8 @@
                       cols="30"
                       rows="10"
                       readonly
+                      aria-label="Generated character bytes"
+                      data-i18n-aria-label="character_bytes"
                     ></textarea>
                   </section>
                 </div>
@@ -220,18 +271,26 @@
                           Оставшаяся память: 320 байт
                         </span>
                       </div>
-                      <p class="frames-hint" data-i18n="frames_hint"></p>
+                      <p class="frames-hint" id="frames-hint" data-i18n="frames_hint"></p>
                       <!-- Статус редактирования кадра -->
-                      <div id="editing-status" class="editing-status" hidden>
-                        <i class="bi bi-pencil-square editing-status-icon"></i>
+                      <div id="editing-status" class="editing-status" hidden aria-live="polite">
+                        <i class="bi bi-pencil-square editing-status-icon" aria-hidden="true"></i>
                         <span id="editing-frame-label" data-i18n="editing_frame"></span>
                         <span class="editing-status-hint" data-i18n="editing_hint"></span>
                         <button id="stop-editing-btn" class="btn btn-sm btn-outline-primary">
-                          <i class="bi bi-check-lg"></i>
+                          <i class="bi bi-check-lg" aria-hidden="true"></i>
                           <span data-i18n="done_editing"></span>
                         </button>
                       </div>
-                      <div class="frames-container" id="framesContainer">
+                      <div
+                        class="frames-container"
+                        id="framesContainer"
+                        role="group"
+                        aria-label="Saved frames"
+                        data-i18n-aria-label="saved_frames"
+                        aria-describedby="frames-hint"
+                        tabindex="-1"
+                      >
                         <!-- Frames will be dynamically added here -->
                       </div>
                     </div>
@@ -240,7 +299,9 @@
                       <div class="fps-control">
                         <label for="fps" data-i18n="animation_fps">Animation FPS:</label>
                         <input type="range" id="fps" min="1" max="24" value="2" />
-                        <span id="fpsValue">2</span> FPS
+                        <span class="fps-value"
+                          ><output id="fpsValue" for="fps">2</output> FPS</span
+                        >
                       </div>
                       <div class="animation-buttons">
                         <button id="save-frame" class="btn btn-success" data-i18n="save_frame">
@@ -260,14 +321,26 @@
               </div>
 
               <!-- Toggle Button -->
-              <button id="toggle-pdf-button" class="bookmark-button" data-i18n="symbols_table">
+              <button
+                id="toggle-pdf-button"
+                class="bookmark-button"
+                type="button"
+                aria-controls="pdf-panel"
+                aria-expanded="false"
+                data-i18n="symbols_table"
+              >
                 Symbols table
               </button>
 
               <!-- Side Panel for PDF -->
-              <div id="pdf-panel" class="pdf-panel">
+              <div id="pdf-panel" class="pdf-panel" inert>
                 <!-- Добавляем выпадающий список для выбора PDF -->
-                <select id="pdf-select" class="form-control">
+                <select
+                  id="pdf-select"
+                  class="form-control"
+                  aria-label="Symbols table"
+                  data-i18n-aria-label="symbols_table"
+                >
                   <option value="./assets/pdf/MT–20S4A_symbols_table.pdf" data-i18n="mt_20s4a">
                     MT–20S4A
                   </option>
@@ -282,14 +355,22 @@
                   src="./assets/pdf/MT–20S4A_symbols_table.pdf"
                   width="100%"
                   height="100%"
+                  title="Symbols table"
+                  data-i18n-title="symbols_table"
                 ></iframe>
               </div>
 
             </div>
 
             <!-- Arduino Code Tab -->
-            <div class="tab-pane" id="tab-code" role="tabpanel" style="display: none">
-              <h3 data-i18n="arduino_code">Arduino Code</h3>
+            <div
+              class="tab-pane"
+              id="tab-code"
+              role="tabpanel"
+              aria-labelledby="arduinoCodeLink"
+              hidden
+            >
+              <h2 data-i18n="arduino_code">Arduino Code</h2>
               <div class="row mb-3">
                 <div class="col-md-2 col-6">
                   <label for="RSPin" class="form-label">RS Pin</label>
@@ -317,7 +398,7 @@
                 </div>
               </div>
               <div class="code-header">
-                <h4 data-i18n="output">Вывод</h4>
+                <h3 data-i18n="output">Вывод</h3>
                 <button
                   id="copy-arduino-btn"
                   class="btn btn-sm btn-outline-secondary"
@@ -333,7 +414,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </main>
     <footer class="bg-dark text-center">
       <!-- Grid container -->
       <div class="container p-4">

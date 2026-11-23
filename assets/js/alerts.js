@@ -19,17 +19,18 @@ function createAlertModal() {
   alertModalEl.id = 'app-alert-modal';
   alertModalEl.tabIndex = -1;
   alertModalEl.setAttribute('aria-labelledby', 'app-alert-modal-title');
+  alertModalEl.setAttribute('aria-describedby', 'app-alert-modal-text');
   alertModalEl.setAttribute('aria-hidden', 'true');
   alertModalEl.innerHTML = `
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="app-alert-modal-title"></h5>
+          <h2 class="modal-title fs-5" id="app-alert-modal-title"></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body d-flex align-items-start gap-3">
           <i class="app-alert-icon bi" aria-hidden="true"></i>
-          <p class="app-alert-text mb-0"></p>
+          <p class="app-alert-text mb-0" id="app-alert-modal-text"></p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary app-alert-cancel" data-bs-dismiss="modal"></button>

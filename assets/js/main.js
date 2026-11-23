@@ -788,48 +788,6 @@ function restoreWorkspaceState() {
   }
 }
 
-/*============ АЛЕРТЫ ============*/
-function showConfirmationAlert(message, callback) {
-  Swal.fire({
-    title: translations[userLang][message],
-    icon: 'warning',
-    theme: getTheme(),
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: translations[userLang].yes,
-    cancelButtonText: translations[userLang].no,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      callback();
-    }
-  });
-}
-
-function showErrorAlert(message) {
-  Swal.fire({
-    title: translations[userLang].error,
-    text: translations[userLang][message],
-    icon: 'error',
-    theme: getTheme(),
-    confirmButtonText: translations[userLang].ok,
-    confirmButtonColor: '#3085d6',
-  });
-}
-
-function showWarningAlert(message, options = {}) {
-  Swal.fire({
-    title: translations[userLang].warning || 'Warning',
-    text: translations[userLang][message] || message,
-    icon: 'warning',
-    iconColor: '#ffc107',
-    theme: getTheme(),
-    confirmButtonText: translations[userLang].ok || 'OK',
-    confirmButtonColor: '#3085d6',
-    backdrop: true,
-  });
-}
-
 /*============ ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ ============*/
 $(document).ready(function () {
   applyTranslations();
@@ -975,21 +933,9 @@ async function copyToClipboard(elementId) {
   }
 
   if (copied) {
-    Swal.fire({
-      icon: 'success',
-      title: translations[userLang].success,
-      text: translations[userLang].copy_success,
-      theme: getTheme(),
-      timer: 2000,
-      showConfirmButton: false,
-    });
+    showToast(translations[userLang].success, translations[userLang].copy_success, 'success');
   } else {
-    Swal.fire({
-      icon: 'error',
-      title: translations[userLang].error,
-      text: translations[userLang].copy_error,
-      theme: getTheme(),
-    });
+    showErrorAlert('copy_error');
   }
 }
 
